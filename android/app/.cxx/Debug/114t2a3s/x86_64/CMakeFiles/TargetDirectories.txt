@@ -1,0 +1,2 @@
+D:/renta_control/android/app/.cxx/Debug/114t2a3s/x86_64/CMakeFiles/edit_cache.dir
+D:/renta_control/android/app/.cxx/Debug/114t2a3s/x86_64/CMakeFiles/rebuild_cache.dir
