@@ -1,0 +1,2 @@
+D:/renta_control/android/app/.cxx/Debug/j1t1p1h5/armeabi-v7a/CMakeFiles/edit_cache.dir
+D:/renta_control/android/app/.cxx/Debug/j1t1p1h5/armeabi-v7a/CMakeFiles/rebuild_cache.dir

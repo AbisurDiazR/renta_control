@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "217590541556",
+    "project_id": "renta-control",
+    "storage_bucket": "renta-control.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:217590541556:android:f57076744f605800a342a1",
+        "android_client_info": {
+          "package_name": "com.example.renta_control"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBxpbWmHjBzkhVtOTEKAAgz-E76VOg8kE8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
