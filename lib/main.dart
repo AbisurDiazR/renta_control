@@ -4,10 +4,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:renta_control/data/repositories/auth_repository.dart';
+import 'package:renta_control/data/repositories/property_repository.dart';
 import 'package:renta_control/firebase_options.dart';
 import 'package:renta_control/presentation/blocs/auth/auth_bloc.dart';
 import 'package:renta_control/presentation/blocs/auth/auth_event.dart';
 import 'package:renta_control/presentation/blocs/auth/auth_state.dart';
+import 'package:renta_control/presentation/blocs/properties/property_bloc.dart';
 import 'package:renta_control/presentation/pages/home_page.dart';
 import 'package:renta_control/presentation/pages/login_page.dart';
 
@@ -15,8 +17,9 @@ import 'package:renta_control/presentation/pages/login_page.dart';
 final getIt = GetIt.instance;
 
 void setupLocator() {
-  getIt.registerLazySingleton<AuthRepository>(() => AuthRepository());
   //Registra todos los repositorios o servicios según sea necesario
+  getIt.registerLazySingleton<AuthRepository>(() => AuthRepository());  
+  getIt.registerLazySingleton<PropertyRepository>(() => PropertyRepository());
 }
 
 void main() async {
@@ -36,23 +39,33 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    /*return MaterialApp(
-      title: 'Renta control',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: BlocProvider(
-        create:
-            (context) =>
-                AuthBloc(authRepository: getIt<AuthRepository>())
-                  ..add(AppStarted()),
-        child: AppNavigator(),
-      ),
-    );*/
-    return BlocProvider(
-      create: (context) => AuthBloc(authRepository: getIt<AuthRepository>())..add(AppStarted()),
-      child: MaterialApp(
-        title: 'Renta Control',
-        theme: ThemeData(primarySwatch: Colors.blue),
-        home: AppNavigator(),
+    return MultiRepositoryProvider(
+      providers: [
+        RepositoryProvider<AuthRepository>(
+          create: (_) => getIt<AuthRepository>(),
+        ),
+        RepositoryProvider(
+          create: (_) => getIt<PropertyRepository>(),
+        ),
+      ],
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider<AuthBloc>(
+            create: (context) => AuthBloc(
+              authRepository: context.read<AuthRepository>()
+            )..add(AppStarted()),
+          ),
+          BlocProvider(
+            create: (context) => PropertyBloc(
+              repository: context.read<PropertyRepository>()
+            ),
+          ),
+        ],
+        child: MaterialApp(
+          title: 'Renta Control',
+          theme: ThemeData(primarySwatch: Colors.blue),
+          home: AppNavigator(),
+        ),
       ),
     );
   }

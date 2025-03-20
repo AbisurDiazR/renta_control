@@ -1,7 +1,7 @@
 // ignore_for_file: override_on_non_overriding_member
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:renta_control/data/models/user_model.dart';
+import 'package:renta_control/domain/models/user_model.dart';
 
 class AuthRepository {
   final FirebaseAuth _firebaseAuth;
