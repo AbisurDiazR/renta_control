@@ -5,6 +5,7 @@ import 'package:renta_control/data/repositories/property_repository.dart';
 import 'package:renta_control/presentation/blocs/properties/property_bloc.dart';
 import 'package:renta_control/presentation/blocs/properties/property_event.dart';
 import 'package:renta_control/presentation/blocs/properties/property_state.dart';
+import 'package:renta_control/presentation/pages/add_property_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -57,7 +58,9 @@ class HomePage extends StatelessWidget {
           SpeedDialChild(
             child: Icon(Icons.home),
             label: 'Registrar propiedad',
-            onTap: () {},
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => AddPropertyPage()));
+            },
           ),
           SpeedDialChild(
             child: Icon(Icons.person_add),

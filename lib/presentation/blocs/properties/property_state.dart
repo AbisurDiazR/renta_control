@@ -27,3 +27,5 @@ class PropertyError extends PropertyState{
   @override
   List<Object> get props => [message];
 }
+
+class PropertyAdded extends PropertyState{}

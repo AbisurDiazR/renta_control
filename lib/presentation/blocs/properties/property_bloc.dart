@@ -9,6 +9,18 @@ class PropertyBloc extends Bloc<PropertyEvent, PropertyState> {
   List<Property> allProperties = [];
 
   PropertyBloc({required this.repository}) : super(PropertyInitial()) {
+    on<AddProperty>((event, emit) async {
+      try {
+        final newProperty = Property(name: event.name, address: event.address, owner: event.owner);
+        await repository.addProperty(newProperty);
+        emit(PropertyAdded());
+        await Future.delayed(Duration(milliseconds: 100));
+        add(FetchProperties());
+      } catch (e) {
+        emit(PropertyError(message: 'Error al agregar la propiedad $e',));
+      }
+    });
+
     on<FetchProperties>((event, emit) async {
       emit(PropertyLoading());
       try {
