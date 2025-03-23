@@ -22,8 +22,8 @@ class PropertyRepository {
     });
   }
 
-  Future<List<Property>> fetchProperties() async {
-    try {
+  Stream<List<Property>> fetchProperties() {
+    /*try {
       QuerySnapshot querySnapshot = await _propertiesCollection.get();
       return querySnapshot.docs.map((doc) {
         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
@@ -38,6 +38,19 @@ class PropertyRepository {
       }).toList();
     } catch (e) {
       throw Exception('Error al obtener las propiedades: $e');
-    }
+    }*/
+    return _propertiesCollection.snapshots().map((querySnapshot) {
+      return querySnapshot.docs.map((doc) {
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        return Property(
+          name: data['name'],
+          address: data['address'],
+          owner: UserModel(
+            id: data['owner']['id'],
+            email: data['owner']['email'],
+          ),
+        );
+      }).toList();
+    });
   }
 }
