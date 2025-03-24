@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:renta_control/domain/models/property.dart';
 import 'package:renta_control/domain/models/user_model.dart';
 
 abstract class PropertyEvent extends Equatable{
@@ -26,4 +27,13 @@ class AddProperty extends PropertyEvent{
 
   @override
   List<Object> get props => [name, address, owner];
+}
+
+class UpdateProperty extends PropertyEvent{
+  final Property property;
+
+  UpdateProperty({ required this.property });
+
+  @override
+  List<Object> get props => [property];
 }

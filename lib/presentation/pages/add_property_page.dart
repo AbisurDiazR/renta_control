@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:renta_control/domain/models/property.dart';
 import 'package:renta_control/domain/models/user_model.dart';
 import 'package:renta_control/presentation/blocs/properties/property_bloc.dart';
 import 'package:renta_control/presentation/blocs/properties/property_event.dart';
@@ -8,13 +9,19 @@ import 'package:renta_control/presentation/blocs/properties/property_event.dart'
 class AddPropertyPage extends StatelessWidget {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
+  final Property? property;
 
-  AddPropertyPage({super.key});
+  AddPropertyPage({Key? key, this.property}) : super(key: key) {
+    if (property != null) {
+      _nameController.text = property!.name;
+      _addressController.text = property!.address;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Registrar nueva propiedad")),
+      appBar: AppBar(title: Text(property == null ? "Registrar nueva propiedad" : "Editar propiedad")),
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: Column(
@@ -45,11 +52,16 @@ class AddPropertyPage extends StatelessWidget {
                     name: firebaseUser.displayName ?? '',
                     profileImageUrl: firebaseUser.photoURL ?? '',
                   );
-
-                  //context.read<PropertyBloc>().add(AddProperty(name: name, address: address, owner: owner));
-                  BlocProvider.of<PropertyBloc>(context).add(
-                    AddProperty(name: name, address: address, owner: owner),
-                  );
+                  
+                  if (property == null) {
+                    BlocProvider.of<PropertyBloc>(context).add(
+                      AddProperty(name: name, address: address, owner: owner)
+                    );
+                  } else {
+                    BlocProvider.of<PropertyBloc>(context).add(
+                      UpdateProperty(property: property!.copyWith(id: property!.id, name: name, address: address))
+                    );
+                  }
                   Navigator.pop(context);
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -59,7 +71,7 @@ class AddPropertyPage extends StatelessWidget {
                   );
                 }
               },
-              child: Text('Registrar propiedad'),
+              child: Text(property == null ? 'Registrar propiedad' : 'Guardar cambios'),
             ),
           ],
         ),

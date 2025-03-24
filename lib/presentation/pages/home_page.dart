@@ -35,7 +35,16 @@ class HomePage extends StatelessWidget {
                         return ListTile(
                           title: Text(property.name),
                           subtitle: Text(property.address),
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.push(                        
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) =>
+                                        AddPropertyPage(property: property),
+                              ),
+                            );
+                          },
                         );
                       },
                     );
@@ -59,7 +68,10 @@ class HomePage extends StatelessWidget {
             child: Icon(Icons.home),
             label: 'Registrar propiedad',
             onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => AddPropertyPage()));
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AddPropertyPage()),
+              );
             },
           ),
           SpeedDialChild(

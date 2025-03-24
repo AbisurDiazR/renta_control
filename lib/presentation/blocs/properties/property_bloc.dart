@@ -14,50 +14,8 @@ class PropertyBloc extends Bloc<PropertyEvent, PropertyState> {
     on<FetchProperties>(_onFetchProperties);
     on<PropertiesUpdated>(_onPropertiesUpdated);
     on<AddProperty>(_onAddProperty);
+    on<UpdateProperty>(_onUpdateProperty);
     on<SearchProperties>(_onSearchProperties);
-    /*on<AddProperty>((event, emit) async {
-      try {
-        final newProperty = Property(name: event.name, address: event.address, owner: event.owner);
-        await repository.addProperty(newProperty);
-        // Actualizar la lista local de propiedades
-        allProperties.add(newProperty);
-        // Emitir el estado actualizado con la lista de propiedades actualizada
-        emit(PropertyLoaded(properties: List.from(allProperties)));
-      } catch (e) {
-        emit(PropertyError(message: 'Error al agregar la propiedad $e',));
-      }
-    });
-
-    on<FetchProperties>((event, emit) async {
-      emit(PropertyLoading());
-      try {
-        allProperties = await repository.fetchProperties();
-
-        //Obtener correo del usuario autenticado
-        User? user = FirebaseAuth.instance.currentUser;
-        String? userEmail = user?.email;
-
-        //Filtrar propiedades si el correo es diferente a 'mendozacayu3@gmail.com
-        if (userEmail != null && userEmail != 'mendozacayu3@gmail.com') {
-          allProperties = allProperties.where((property) {
-            return property.owner.email == userEmail;
-          }).toList();
-        }
-        emit(PropertyLoaded(properties: allProperties));
-      } catch (e) {
-        emit(PropertyError(message: 'Error al cargar propiedades'));
-      }
-    });
-
-    on<SearchProperties>((event, emit) async {
-      final query = event.query.toLowerCase();
-      final filteredProperties =
-          allProperties.where((property) {
-            return property.name.toLowerCase().contains(query) ||
-                property.address.toLowerCase().contains(query);
-          }).toList();
-      emit(PropertyLoaded(properties: filteredProperties));
-    });*/
   }
 
   FutureOr<void> _onFetchProperties(
@@ -111,6 +69,17 @@ class PropertyBloc extends Bloc<PropertyEvent, PropertyState> {
     }
   }
 
+  FutureOr<void> _onUpdateProperty(
+    UpdateProperty event,
+    Emitter<PropertyState> emit,
+  ) async {
+    try {
+      await repository.updateProperty(event.property);
+    } catch (e) {
+      emit(PropertyError(message: 'Error al actualizar la propiedad: $e'));
+    }
+  }
+
   FutureOr<void> _onSearchProperties(
     SearchProperties event,
     Emitter<PropertyState> emit,
@@ -118,16 +87,19 @@ class PropertyBloc extends Bloc<PropertyEvent, PropertyState> {
     if (state is PropertyLoaded) {
       final currentState = state as PropertyLoaded;
       final query = event.query.toLowerCase();
-      final filteredProperties = currentState.properties.where((property) {
-        return property.name.toLowerCase().contains(query) || property.address.contains(query);
-      }).toList();
+      final filteredProperties =
+          currentState.properties.where((property) {
+            return property.name.toLowerCase().contains(query) ||
+                property.address.contains(query);
+          }).toList();
       emit(PropertyLoaded(properties: filteredProperties));
     }
   }
 
   @override
-  Future<void> close(){
+  Future<void> close() {
     _propertiesSubscription?.cancel();
     return super.close();
   }
+  
 }

@@ -14,35 +14,24 @@ class PropertyRepository {
     });
   }
 
-  Future<void> updateProperty(String docId, Property property) {
-    return _propertiesCollection.doc(docId).set({
-      'name': property.name,
-      'address': property.address,
-      'owner': property.owner.toMap(),
-    });
+  Future<void> updateProperty(Property property) async {
+    try {
+      await _propertiesCollection.doc(property.id).update({
+        'name': property.name,
+        'address': property.address,
+        'owner': property.owner.toMap()
+      });
+    } catch (e) {
+      throw Exception(e.toString());
+    }
   }
 
   Stream<List<Property>> fetchProperties() {
-    /*try {
-      QuerySnapshot querySnapshot = await _propertiesCollection.get();
-      return querySnapshot.docs.map((doc) {
-        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-        return Property(
-          name: data['name'],
-          address: data['address'],
-          owner: UserModel(
-            id: data['owner']['id'],
-            email: data['owner']['email']
-          ),
-        );
-      }).toList();
-    } catch (e) {
-      throw Exception('Error al obtener las propiedades: $e');
-    }*/
     return _propertiesCollection.snapshots().map((querySnapshot) {
       return querySnapshot.docs.map((doc) {
         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
         return Property(
+          id: doc.id,
           name: data['name'],
           address: data['address'],
           owner: UserModel(
