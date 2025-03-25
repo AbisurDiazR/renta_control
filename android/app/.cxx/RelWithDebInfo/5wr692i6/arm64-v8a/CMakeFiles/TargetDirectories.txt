@@ -1,0 +1,2 @@
+D:/renta_control/android/app/.cxx/RelWithDebInfo/5wr692i6/arm64-v8a/CMakeFiles/edit_cache.dir
+D:/renta_control/android/app/.cxx/RelWithDebInfo/5wr692i6/arm64-v8a/CMakeFiles/rebuild_cache.dir
