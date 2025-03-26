@@ -12,13 +12,14 @@ import 'package:renta_control/presentation/blocs/auth/auth_state.dart';
 import 'package:renta_control/presentation/blocs/properties/property_bloc.dart';
 import 'package:renta_control/presentation/pages/home_page.dart';
 import 'package:renta_control/presentation/pages/login_page.dart';
+import 'package:renta_control/presentation/pages/splash_page.dart';
 
 //Configuración de la instancia de inyección de dependencias
 final getIt = GetIt.instance;
 
 void setupLocator() {
   //Registra todos los repositorios o servicios según sea necesario
-  getIt.registerLazySingleton<AuthRepository>(() => AuthRepository());  
+  getIt.registerLazySingleton<AuthRepository>(() => AuthRepository());
   getIt.registerLazySingleton<PropertyRepository>(() => PropertyRepository());
 }
 
@@ -44,27 +45,33 @@ class MyApp extends StatelessWidget {
         RepositoryProvider<AuthRepository>(
           create: (_) => getIt<AuthRepository>(),
         ),
-        RepositoryProvider(
-          create: (_) => getIt<PropertyRepository>(),
-        ),
+        RepositoryProvider(create: (_) => getIt<PropertyRepository>()),
       ],
       child: MultiBlocProvider(
         providers: [
           BlocProvider<AuthBloc>(
-            create: (context) => AuthBloc(
-              authRepository: context.read<AuthRepository>()
-            )..add(AppStarted()),
+            create:
+                (context) =>
+                    AuthBloc(authRepository: context.read<AuthRepository>())
+                      ..add(AppStarted()),
           ),
           BlocProvider(
-            create: (context) => PropertyBloc(
-              repository: context.read<PropertyRepository>()
-            ),
+            create:
+                (context) => PropertyBloc(
+                  repository: context.read<PropertyRepository>(),
+                ),
           ),
         ],
         child: MaterialApp(
           title: 'Renta Control',
           theme: ThemeData(primarySwatch: Colors.blue),
-          home: AppNavigator(),
+          initialRoute: '/',
+          routes: {
+            '/': (context) => SplashPage(),
+            '/home': (context) => HomePage(),
+            '/login': (context) => LoginPage(),
+          },
+          //home: AppNavigator(),
         ),
       ),
     );
@@ -79,16 +86,36 @@ class AppNavigator extends StatelessWidget {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is Authenticated) {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => HomePage()),
-          );
+          Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
         } else if (state is Unauthenticated) {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => LoginPage()),
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            '/login',
+            (route) => false,
           );
         }
       },
       child: Scaffold(body: Center(child: CircularProgressIndicator())),
     );
   }
+
+  /*@override
+  Widget build(BuildContext context) {
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state is Authenticated) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => HomePage()),
+            (route) => false,
+          );
+        } else if (state is Unauthenticated) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => LoginPage()),
+            (route) => false,
+          );
+        }
+      },
+      child: Scaffold(body: Center(child: CircularProgressIndicator())),
+    );
+  }*/
 }

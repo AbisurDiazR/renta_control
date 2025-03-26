@@ -1,66 +1,95 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:renta_control/data/repositories/property_repository.dart';
-import 'package:renta_control/presentation/blocs/properties/property_bloc.dart';
-import 'package:renta_control/presentation/blocs/properties/property_event.dart';
-import 'package:renta_control/presentation/blocs/properties/property_state.dart';
-import 'package:renta_control/presentation/pages/add_property_page.dart';
+import 'package:renta_control/presentation/blocs/auth/auth_bloc.dart';
+import 'package:renta_control/presentation/blocs/auth/auth_event.dart';
+import 'package:renta_control/presentation/pages/contracts/create_contract_page.dart';
+import 'package:renta_control/presentation/pages/properties/add_property_page.dart';
+import 'package:renta_control/presentation/pages/contracts/contracts_page.dart';
+import 'package:renta_control/presentation/pages/invoices_page.dart';
+import 'package:renta_control/presentation/pages/properties/properties_page.dart';
+import 'package:renta_control/presentation/pages/users_page.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget{
   const HomePage({super.key});
+
+  @override
+  // ignore: library_private_types_in_public_api
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+
+  int _selectedIndex = 0;
+
+  final List<Widget> _pages = [
+    PropertiesPage(),
+    ContractsPage(),
+    InvoicesPage(),
+    UsersPage()
+  ];
+
+  //Metodo para actualizar el indice seleccionado
+  void _onItemTapped(int index){
+    setState(() {
+      _selectedIndex = index;
+    });
+    Navigator.pop(context);
+  }
   
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Lista de propiedades')),
-      body: BlocProvider(
-        create:
-            (context) => PropertyBloc(
-              repository: RepositoryProvider.of<PropertyRepository>(context),
-            )..add(FetchProperties()),
-        child: Column(
-          children: [
-            Padding(padding: EdgeInsets.all(8.0), child: SearchBar()),
-            Expanded(
-              child: BlocBuilder<PropertyBloc, PropertyState>(
-                builder: (context, state) {
-                  if (state is PropertyLoading) {
-                    return Center(child: CircularProgressIndicator());
-                  } else if (state is PropertyLoaded) {
-                    return ListView.builder(
-                      itemCount: state.properties.length,
-                      itemBuilder: (context, index) {
-                        final property = state.properties[index];
-                        return ListTile(
-                          title: Text(property.name),
-                          subtitle: Text(property.address),
-                          onTap: () {
-                            Navigator.push(                        
-                              context,
-                              MaterialPageRoute(
-                                builder:
-                                    (context) =>
-                                        AddPropertyPage(property: property),
-                              ),
-                            );
-                          },
-                        );
-                      },
-                    );
-                  } else if (state is PropertyError) {
-                    return Center(child: Text(state.message));
-                  } else {
-                    return Center(
-                      child: Text('No hay propiedades disponibles'),
-                    );
-                  }
-                },
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
               ),
+              child: Text(
+                'Menú de navegación',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.home),
+              title: Text('Propiedades'),
+              onTap: () => _onItemTapped(0),
+            ),
+            ListTile(
+              leading: Icon(Icons.assignment),
+              title: Text('Contratos'),
+              onTap: () => _onItemTapped(1),
+            ),
+            ListTile(
+              leading: Icon(Icons.receipt),
+              title: Text('Facturas'),
+              onTap: () => _onItemTapped(2),
+            ),
+            ListTile(
+              leading: Icon(Icons.person),
+              title: Text('Usuarios'),
+              onTap: () => _onItemTapped(3),
+            ),
+            Divider(height: 50,),
+            ListTile(
+              leading: Icon(Icons.exit_to_app),
+              title: Text('Cerrar sesión'),
+              onTap: () {
+                context.read<AuthBloc>().add(LogoutRequested());
+                Navigator.pushReplacementNamed(context, '/login');
+              },
             ),
           ],
         ),
       ),
+      body: _pages[_selectedIndex],
       floatingActionButton: SpeedDial(
         animatedIcon: AnimatedIcons.menu_close,
         children: [
@@ -82,7 +111,12 @@ class HomePage extends StatelessWidget {
           SpeedDialChild(
             child: Icon(Icons.assignment),
             label: 'Generar contrato',
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => CreateContractPage())
+              );
+            },
           ),
           SpeedDialChild(
             child: Icon(Icons.receipt),
@@ -91,24 +125,6 @@ class HomePage extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class SearchBar extends StatelessWidget {
-  const SearchBar({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      decoration: InputDecoration(
-        hintText: 'Buscar propiedades...',
-        border: OutlineInputBorder(),
-        prefix: Icon(Icons.search),
-      ),
-      onChanged: (query) {
-        context.read<PropertyBloc>().add(SearchProperties(query: query));
-      },
     );
   }
 }

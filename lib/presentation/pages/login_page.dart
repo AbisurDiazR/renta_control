@@ -14,52 +14,6 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    /*return Scaffold(
-      appBar: AppBar(title: Text('Inicio de Sesión')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: _emailController,
-              decoration: InputDecoration(labelText: 'Correo Electrónico'),
-            ),
-            TextField(
-              controller: _passwordController,
-              decoration: InputDecoration(labelText: 'Contraseña'),
-              obscureText: true,
-            ),
-            SizedBox(height: 20),
-            BlocConsumer<AuthBloc, AuthState>(
-              listener: (context, state) {
-                if (state is Authenticated) {
-                  // Navegar a la página principal
-                } else if (state is AuthError) {
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(SnackBar(content: Text(state.message)));
-                }
-              },
-              builder: (context, state) {
-                if (state is AuthLoading) {
-                  return CircularProgressIndicator();
-                }
-                return ElevatedButton(
-                  onPressed: () {
-                    final email = _emailController.text;
-                    final password = _passwordController.text;
-                    BlocProvider.of<AuthBloc>(
-                      context,
-                    ).add(LoginRequested(email, password));
-                  },
-                  child: Text('Iniciar Sesión'),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
-    );*/
     return Scaffold(
       body: Background(
         child: Column(
@@ -106,7 +60,7 @@ class LoginPage extends StatelessWidget {
             BlocConsumer<AuthBloc, AuthState>(
               listener: (context, state) {
                 if (state is Authenticated) {
-                  // Navegar a la página principal
+                  Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
                 } else if (state is AuthError) {
                   ScaffoldMessenger.of(
                     context,
@@ -124,6 +78,7 @@ class LoginPage extends StatelessWidget {
                     BlocProvider.of<AuthBloc>(
                       context,
                     ).add(LoginRequested(email, password));
+
                   },
                   child: Text('Iniciar Sesión'),
                 );
