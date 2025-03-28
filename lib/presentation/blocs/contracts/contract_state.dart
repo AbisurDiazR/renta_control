@@ -1,4 +1,6 @@
 import 'package:equatable/equatable.dart';
+import 'package:renta_control/domain/models/contract_model.dart';
+import 'package:renta_control/presentation/blocs/contracts/contract_event.dart';
 
 abstract class ContractState extends Equatable{
   @override
@@ -9,7 +11,14 @@ class ContractInitial extends ContractState{}
 
 class ContractLoading extends ContractState{}
 
-class ContractLoaded extends ContractState{}
+class ContractLoaded extends ContractState{
+  final List<Contract> contracts;
+
+  ContractLoaded({required this.contracts});
+
+  @override
+  List<Object> get props => [contracts];
+}
 
 class ContractError extends ContractState{
   final String message;
@@ -22,4 +31,11 @@ class ContractError extends ContractState{
 
 class ContractAdded extends ContractState{}
 
-class ContractsUpdated extends ContractState{}
+class ContractsUpdated extends ContractEvent{
+  final List<Contract> contracts;
+
+  ContractsUpdated({required this.contracts});
+
+  @override
+  List<Object> get props => [contracts];
+}

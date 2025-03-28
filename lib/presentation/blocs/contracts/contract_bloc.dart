@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:renta_control/data/repositories/contract_repository.dart';
 import 'package:renta_control/domain/models/contract_model.dart';
@@ -8,8 +9,11 @@ import 'package:renta_control/presentation/blocs/contracts/contract_state.dart';
 
 class ContractBloc extends Bloc<ContractEvent, ContractState> {
   final ContractRepository repository;
+  StreamSubscription<List<Contract>>? _contractsSubscription;
 
   ContractBloc({required this.repository}) : super(ContractInitial()) {
+    on<FetchContracts>(_onFetchContracts);
+    on<ContractsUpdated>(_onContractsUpdated);
     on<AddContract>(_addContract);
   }
 
@@ -20,22 +24,50 @@ class ContractBloc extends Bloc<ContractEvent, ContractState> {
     try {
       final newContract = Contract(
         id: event.contract.id,
-        owner: event.contract.owner,
-        contractType: event.contract.contractType,
-        nombre: event.contract.nombre,
-        rfc: event.contract.rfc,
-        telefono: event.contract.telefono,
-        domicilio: event.contract.domicilio,
-        colonia: event.contract.colonia,
-        alcaldia: event.contract.alcaldia,
-        ciudad: event.contract.ciudad,
-        codigoPostal: event.contract.codigoPostal,
-        estado: event.contract.estado,
-        pais: event.contract.pais,
+        renter: event.contract.renter,
+        contractBody: event.contract.contractBody,
+        property: event.contract.property,
+        ownerEmail: event.contract.ownerEmail,
+        propertyName: event.contract.propertyName
       );
       await repository.addContract(newContract);
     } catch (e) {
       emit(ContractError(message: "Error al crear el contrato: $e"));
     }
+  }
+
+  FutureOr<void> _onFetchContracts(
+    FetchContracts event,
+    Emitter<ContractState> emit,
+  ) async {
+    emit(ContractLoading());
+    await _contractsSubscription?.cancel();
+    _contractsSubscription = repository.fetchContracts().listen(
+      (contracts) {
+        add(ContractsUpdated(contracts: contracts));
+      },
+      onError: (error) {
+        emit(ContractError(message: 'Error al cargar contratos: $error'));
+      },
+    );
+  }
+
+  FutureOr<void> _onContractsUpdated(
+    ContractsUpdated event,
+    Emitter<ContractState> emit,
+  ) {
+    final user = FirebaseAuth.instance.currentUser;
+    final userEmail = user?.email;
+
+    List<Contract> filteredContracts = event.contracts;
+
+    if (userEmail != null && userEmail != 'mendozacayu3@gmail.com') {
+      filteredContracts =
+          event.contracts
+              .where((contract) => contract.ownerEmail == userEmail)
+              .toList();
+    }
+
+    emit(ContractLoaded(contracts: filteredContracts));
   }
 }

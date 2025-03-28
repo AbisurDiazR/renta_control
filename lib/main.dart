@@ -4,11 +4,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:renta_control/data/repositories/auth_repository.dart';
+import 'package:renta_control/data/repositories/contract_repository.dart';
 import 'package:renta_control/data/repositories/property_repository.dart';
 import 'package:renta_control/firebase_options.dart';
 import 'package:renta_control/presentation/blocs/auth/auth_bloc.dart';
 import 'package:renta_control/presentation/blocs/auth/auth_event.dart';
 import 'package:renta_control/presentation/blocs/auth/auth_state.dart';
+import 'package:renta_control/presentation/blocs/contracts/contract_bloc.dart';
 import 'package:renta_control/presentation/blocs/properties/property_bloc.dart';
 import 'package:renta_control/presentation/pages/home_page.dart';
 import 'package:renta_control/presentation/pages/login_page.dart';
@@ -21,6 +23,7 @@ void setupLocator() {
   //Registra todos los repositorios o servicios según sea necesario
   getIt.registerLazySingleton<AuthRepository>(() => AuthRepository());
   getIt.registerLazySingleton<PropertyRepository>(() => PropertyRepository());
+  getIt.registerLazySingleton<ContractRepository>(() => ContractRepository());
 }
 
 void main() async {
@@ -46,6 +49,7 @@ class MyApp extends StatelessWidget {
           create: (_) => getIt<AuthRepository>(),
         ),
         RepositoryProvider(create: (_) => getIt<PropertyRepository>()),
+        RepositoryProvider(create: (_) => getIt<ContractRepository>()),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -59,6 +63,12 @@ class MyApp extends StatelessWidget {
             create:
                 (context) => PropertyBloc(
                   repository: context.read<PropertyRepository>(),
+                ),
+          ),
+          BlocProvider(
+            create:
+                (context) => ContractBloc(
+                  repository: context.read<ContractRepository>(),
                 ),
           ),
         ],

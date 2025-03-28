@@ -20,9 +20,7 @@ class SearchContracts extends ContractEvent {
 class AddContract extends ContractEvent {
   final Contract contract;
   
-  AddContract(this.contract);
-
-  Contract get getContract => contract;
+  AddContract({required this.contract});
 
   @override
   List<Object> get props => [contract];

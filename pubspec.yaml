@@ -42,6 +42,9 @@ dependencies:
   flutter_speed_dial: ^7.0.0
   cloud_firestore: ^5.6.5
   flutter_side_menu: ^0.5.41
+  firebase_storage: ^12.4.4
+  pdf: ^3.11.3
+  path_provider: ^2.1.5
 
 dev_dependencies:
   flutter_test:

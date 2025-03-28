@@ -21,4 +21,14 @@ class Property {
       owner: owner ?? this.owner
     );
   }
+
+  // Método para convertir una instancia de UserModel a un mapa (por ejemplo, para convertir a JSON)
+  Map<String, dynamic> toMap(){
+    return {
+      'id': id,
+      'name': name,
+      'address': address,
+      'owner': owner.toMap()
+    };
+  }
 }
