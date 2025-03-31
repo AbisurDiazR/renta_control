@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:renta_control/domain/models/property.dart';
+import 'package:renta_control/domain/models/property/property.dart';
 import 'package:renta_control/presentation/blocs/properties/property_event.dart';
 
 abstract class PropertyState extends Equatable{

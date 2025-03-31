@@ -3,8 +3,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:renta_control/domain/models/contract_model.dart';
-import 'package:renta_control/domain/models/property.dart';
+import 'package:renta_control/domain/models/contract/contract_model.dart';
+import 'package:renta_control/domain/models/property/property.dart';
 //import 'package:renta_control/domain/models/user_model.dart';
 import 'package:renta_control/presentation/blocs/contracts/contract_bloc.dart';
 import 'package:renta_control/presentation/blocs/contracts/contract_event.dart';
@@ -184,7 +184,7 @@ class _CreateContractPageState extends State<CreateContractPage> {
 CONTRATO DE ARRENDAMIENTO
 
 Entre las partes:
-- Propietario: ${_selectedProperty?.owner.name} (${data['rfc']})
+- Propietario: ${_selectedProperty?.ownerId} (${data['rfc']})
 - Teléfono: ${data['telefono']}
 - Domicilio: ${data['domicilio']}, ${data['colonia']}, ${data['alcaldia']}, ${data['ciudad']}, C.P. ${data['codigoPostal']}, ${data['estado']}, ${data['pais']}.
 
@@ -224,7 +224,7 @@ Fecha: ${DateTime.now().toLocal()}
         property: _selectedProperty!,
         renter: data['nombre']!,
         contractBody: _generateContractText(data),
-        ownerEmail: _selectedProperty!.owner.email,
+        ownerEmail: _selectedProperty!.ownerId,
         propertyName: _selectedProperty!.name
       );
       BlocProvider.of<ContractBloc>(

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:renta_control/data/repositories/contract_repository.dart';
+import 'package:renta_control/data/repositories/contract/contract_repository.dart';
 import 'package:renta_control/presentation/blocs/contracts/contract_bloc.dart';
 import 'package:renta_control/presentation/blocs/contracts/contract_event.dart';
 import 'package:renta_control/presentation/blocs/contracts/contract_state.dart';

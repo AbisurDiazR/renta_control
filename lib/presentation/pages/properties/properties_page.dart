@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:renta_control/data/repositories/property_repository.dart';
+import 'package:renta_control/data/repositories/property/property_repository.dart';
 import 'package:renta_control/presentation/blocs/properties/property_bloc.dart';
 import 'package:renta_control/presentation/blocs/properties/property_event.dart';
 import 'package:renta_control/presentation/blocs/properties/property_state.dart';
@@ -30,7 +30,7 @@ class PropertiesPage extends StatelessWidget{
                       final property = state.properties[index];
                       return ListTile(
                         title: Text(property.name),
-                        subtitle: Text(property.address),
+                        subtitle: Text(property.street),
                         onTap: () {
                           Navigator.push(context, MaterialPageRoute(builder: (context) => AddPropertyPage(property: property,),));
                         },

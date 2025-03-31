@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:renta_control/domain/models/contract_model.dart';
+import 'package:renta_control/domain/models/contract/contract_model.dart';
 
 class ContractRepository {
   final CollectionReference _contractsCollection = FirebaseFirestore.instance

@@ -1,7 +1,7 @@
 // ignore_for_file: unnecessary_this
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:renta_control/data/repositories/auth_repository.dart';
+import 'package:renta_control/data/repositories/auth/auth_repository.dart';
 import 'package:renta_control/presentation/blocs/auth/auth_event.dart';
 import 'package:renta_control/presentation/blocs/auth/auth_state.dart';
 

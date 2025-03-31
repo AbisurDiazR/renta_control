@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:renta_control/domain/models/user_model.dart';
+import 'package:renta_control/domain/models/user/user_model.dart';
 
 // Clase abstracta que representa todos los estados de autenticación
 abstract class AuthState extends Equatable{

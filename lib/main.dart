@@ -3,14 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:renta_control/data/repositories/auth_repository.dart';
-import 'package:renta_control/data/repositories/contract_repository.dart';
-import 'package:renta_control/data/repositories/property_repository.dart';
+import 'package:renta_control/data/repositories/auth/auth_repository.dart';
+import 'package:renta_control/data/repositories/contract/contract_repository.dart';
+import 'package:renta_control/data/repositories/owner/owner_repository.dart';
+import 'package:renta_control/data/repositories/property/property_repository.dart';
 import 'package:renta_control/firebase_options.dart';
 import 'package:renta_control/presentation/blocs/auth/auth_bloc.dart';
 import 'package:renta_control/presentation/blocs/auth/auth_event.dart';
 import 'package:renta_control/presentation/blocs/auth/auth_state.dart';
 import 'package:renta_control/presentation/blocs/contracts/contract_bloc.dart';
+import 'package:renta_control/presentation/blocs/owners/owner_bloc.dart';
 import 'package:renta_control/presentation/blocs/properties/property_bloc.dart';
 import 'package:renta_control/presentation/pages/home_page.dart';
 import 'package:renta_control/presentation/pages/login_page.dart';
@@ -24,6 +26,7 @@ void setupLocator() {
   getIt.registerLazySingleton<AuthRepository>(() => AuthRepository());
   getIt.registerLazySingleton<PropertyRepository>(() => PropertyRepository());
   getIt.registerLazySingleton<ContractRepository>(() => ContractRepository());
+  getIt.registerLazySingleton<OwnerRepository>(() => OwnerRepository());
 }
 
 void main() async {
@@ -50,6 +53,7 @@ class MyApp extends StatelessWidget {
         ),
         RepositoryProvider(create: (_) => getIt<PropertyRepository>()),
         RepositoryProvider(create: (_) => getIt<ContractRepository>()),
+        RepositoryProvider(create: (_) => getIt<OwnerRepository>()),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -70,6 +74,11 @@ class MyApp extends StatelessWidget {
                 (context) => ContractBloc(
                   repository: context.read<ContractRepository>(),
                 ),
+          ),
+          BlocProvider(
+            create:
+                (context) =>
+                    OwnerBloc(repository: context.read<OwnerRepository>()),
           ),
         ],
         child: MaterialApp(
@@ -108,24 +117,4 @@ class AppNavigator extends StatelessWidget {
       child: Scaffold(body: Center(child: CircularProgressIndicator())),
     );
   }
-
-  /*@override
-  Widget build(BuildContext context) {
-    return BlocListener<AuthBloc, AuthState>(
-      listener: (context, state) {
-        if (state is Authenticated) {
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => HomePage()),
-            (route) => false,
-          );
-        } else if (state is Unauthenticated) {
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => LoginPage()),
-            (route) => false,
-          );
-        }
-      },
-      child: Scaffold(body: Center(child: CircularProgressIndicator())),
-    );
-  }*/
 }

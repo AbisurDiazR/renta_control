@@ -1,4 +1,4 @@
-import 'package:renta_control/domain/models/user_model.dart';
+import 'package:renta_control/domain/models/user/user_model.dart';
 
 abstract class IAuthRepository {
   Future<UserModel?> signIn({required String email, required String password});

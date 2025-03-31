@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:renta_control/domain/models/contract_model.dart';
+import 'package:renta_control/domain/models/contract/contract_model.dart';
 
 abstract class ContractEvent extends Equatable {
   @override

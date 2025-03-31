@@ -1,8 +1,7 @@
 import 'dart:async';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:renta_control/data/repositories/property_repository.dart';
-import 'package:renta_control/domain/models/property.dart';
+import 'package:renta_control/data/repositories/property/property_repository.dart';
+import 'package:renta_control/domain/models/property/property.dart';
 import 'package:renta_control/presentation/blocs/properties/property_event.dart';
 import 'package:renta_control/presentation/blocs/properties/property_state.dart';
 
@@ -38,17 +37,7 @@ class PropertyBloc extends Bloc<PropertyEvent, PropertyState> {
     PropertiesUpdated event,
     Emitter<PropertyState> emit,
   ) {
-    final user = FirebaseAuth.instance.currentUser;
-    final userEmail = user?.email;
-
     List<Property> filteredProperties = event.properties;
-
-    if (userEmail != null && userEmail != 'mendozacayu3@gmail.com') {
-      filteredProperties =
-          event.properties
-              .where((property) => property.owner.email == userEmail)
-              .toList();
-    }
 
     emit(PropertyLoaded(properties: filteredProperties));
   }
@@ -59,10 +48,23 @@ class PropertyBloc extends Bloc<PropertyEvent, PropertyState> {
   ) async {
     try {
       final newProperty = Property(
-        name: event.name,
-        address: event.address,
-        owner: event.owner,
+        name: event.property.name,
+        unitNumber: event.property.unitNumber,
+        street: event.property.street,
+        extNumber: event.property.extNumber,
+        intNumber: event.property.intNumber, // Puede ser null
+        neighborhood: event.property.neighborhood,
+        borough: event.property.borough,
+        city: event.property.city,
+        state: event.property.state,
+        zipCode: event.property.zipCode,
+        propertyTaxNumber: event.property.propertyTaxNumber,
+        ownerId:
+            event
+                .property
+                .ownerId, // Se usa ownerId en lugar de un objeto UserModel
       );
+
       await repository.addProperty(newProperty);
     } catch (e) {
       emit(PropertyError(message: 'Error al cargar la propiedad: $e'));
@@ -90,7 +92,8 @@ class PropertyBloc extends Bloc<PropertyEvent, PropertyState> {
       final filteredProperties =
           currentState.properties.where((property) {
             return property.name.toLowerCase().contains(query) ||
-                property.address.contains(query);
+                property.street.contains(query) ||
+                property.zipCode.contains(query);
           }).toList();
       emit(PropertyLoaded(properties: filteredProperties));
     }
@@ -101,5 +104,4 @@ class PropertyBloc extends Bloc<PropertyEvent, PropertyState> {
     _propertiesSubscription?.cancel();
     return super.close();
   }
-  
 }
