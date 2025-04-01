@@ -13,6 +13,7 @@ class Property {
   final String zipCode; // Código postal
   final String propertyTaxNumber; // Número de cuenta predial
   final String? ownerId; // ID del propietario
+  final String? status;
 
   Property({
     this.id,
@@ -28,6 +29,7 @@ class Property {
     required this.zipCode,
     required this.propertyTaxNumber,
     required this.ownerId,
+    this.status
   });
 
   Property copyWith({
@@ -44,6 +46,7 @@ class Property {
     String? zipCode,
     String? propertyTaxNumber,
     String? ownerId,
+    String? status
   }) {
     return Property(
       id: id ?? this.id,
@@ -59,6 +62,7 @@ class Property {
       zipCode: zipCode ?? this.zipCode,
       propertyTaxNumber: propertyTaxNumber ?? this.propertyTaxNumber,
       ownerId: ownerId ?? this.ownerId,
+      status: status ?? this.status
     );
   }
 
@@ -77,6 +81,7 @@ class Property {
       'zipCode': zipCode,
       'propertyTaxNumber': propertyTaxNumber,
       'ownerId': ownerId,
+      'status': status
     };
   }
 }

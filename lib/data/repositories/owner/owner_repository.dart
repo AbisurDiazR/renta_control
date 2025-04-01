@@ -7,7 +7,18 @@ class OwnerRepository {
 
   Future<void> addOwner(OwnerModel owner) async {
     try {
-      await _ownersCollection.add(owner);
+      await _ownersCollection.add({
+        "name": owner.name,
+        "email": owner.email,
+        "phone": owner.phone,
+        "street": owner.street,
+        "extNumber": owner.extNumber,
+        "neighborhood": owner.neighborhood,
+        "borough": owner.borough,
+        "city": owner.city,
+        "state": owner.state,
+        "zipCode": owner.zipCode,
+      });
     } catch (e) {
       throw Exception(e.toString());
     }

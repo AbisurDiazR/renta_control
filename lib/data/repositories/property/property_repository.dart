@@ -5,8 +5,25 @@ class PropertyRepository {
   final CollectionReference _propertiesCollection = FirebaseFirestore.instance
       .collection("properties");
 
-  Future<void> addProperty(Property property) {
-    return _propertiesCollection.add(property);
+  Future<void> addProperty(Property property) async {
+    try {
+      await _propertiesCollection.add({
+        "name": property.name,
+        "unitNumber": property.unitNumber,
+        "street": property.street,
+        "extNumber": property.extNumber,
+        "neighborhood": property.neighborhood,
+        "borough": property.borough,
+        "city": property.city,
+        "state": property.state,
+        "zipCode": property.zipCode,
+        "propertyTaxNumber": property.propertyTaxNumber,
+        "ownerId": property.ownerId,
+        "status": property.status
+      });
+    } catch (e) {
+      throw Exception(e.toString());
+    }
   }
 
   Future<void> updateProperty(Property property) async {

@@ -31,6 +31,9 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
     super.initState();
     propertyObject = widget.property;
     _initializeControllers();
+
+    // Disparar evento para obtener los propietarios
+    context.read<OwnerBloc>().add(FetchOwners());
   }
 
   void _initializeControllers() {
@@ -86,9 +89,12 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
         zipCode: _controllers['zipCode']!.text,
         propertyTaxNumber: _controllers['propertyTaxNumber']!.text,
         ownerId: _selectedOwner!.id,
+        status: 'disponible'
       );
 
-      BlocProvider.of<PropertyBloc>(context).add(
+      print(_selectedOwner);
+
+      /*BlocProvider.of<PropertyBloc>(context).add(
         propertyObject == null
             ? AddProperty(property: newProperty)
             : UpdateProperty(
@@ -99,7 +105,7 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
             ),
       );
 
-      Navigator.pop(context);
+      Navigator.pop(context);*/
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Por favor, complete todos los campos')),
@@ -163,7 +169,8 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
                                   }).toList(),
                               onChanged: (OwnerModel? value) {
                                 setState(() {
-                                  _selectedOwner = value;
+                                  _selectedOwner = value!;
+                                  print(_selectedOwner?.id);
                                 });
                               },
                               decoration: const InputDecoration(
@@ -187,7 +194,16 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
                     } else if (state is OwnerLoading) {
                       return const CircularProgressIndicator();
                     } else {
-                      return const Text("Error al cargar propietarios");
+                      //return const Text("Error al cargar propietarios");
+                      return Row(
+                        children: [
+                          Text('No hay propietarios registrados'),
+                          IconButton(
+                            icon: Icon(Icons.add),
+                            onPressed: _navigateToAddOwnerPage,
+                          ),
+                        ],
+                      );
                     }
                   },
                 ),
