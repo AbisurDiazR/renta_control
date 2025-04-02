@@ -19,7 +19,8 @@ class PropertyRepository {
         "zipCode": property.zipCode,
         "propertyTaxNumber": property.propertyTaxNumber,
         "ownerId": property.ownerId,
-        "status": property.status
+        "status": property.status,
+        "ownerName": property.ownerName
       });
     } catch (e) {
       throw Exception(e.toString());
@@ -53,6 +54,8 @@ class PropertyRepository {
           propertyTaxNumber: data['propertyTaxNumber'] ?? '',
           ownerId:
               data['ownerId'] ?? '', // Se usa ownerId en lugar de un UserModel
+          status: data['status'],
+          ownerName: data['ownerName']
         );
       }).toList();
     });

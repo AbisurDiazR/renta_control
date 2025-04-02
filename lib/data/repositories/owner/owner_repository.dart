@@ -37,7 +37,7 @@ class OwnerRepository {
       return querySnapshot.docs.map((doc) {
         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
         return OwnerModel(
-          id: data['id'],
+          id: doc.id,
           name: data['name'],
           email: data['email'],
           phone: data['phone'],

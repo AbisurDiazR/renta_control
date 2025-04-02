@@ -22,18 +22,27 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
   final _formKey = GlobalKey<FormState>();
   final Map<String, TextEditingController> _controllers = {};
   Property? propertyObject;
-
-  List<OwnerModel> _owners = [];
   OwnerModel? _selectedOwner;
+  List<OwnerModel> _owners = [];
 
   @override
   void initState() {
     super.initState();
     propertyObject = widget.property;
     _initializeControllers();
+    _fetchOwners();
+  }
 
-    // Disparar evento para obtener los propietarios
-    context.read<OwnerBloc>().add(FetchOwners());
+  void _fetchOwners() {
+    BlocProvider.of<OwnerBloc>(context).add(FetchOwners());
+  }
+
+  void _setSelectedOwner(List<OwnerModel> owners) {
+    if (propertyObject != null) {
+      _selectedOwner = owners.firstWhere(
+        (owner) => owner.id == propertyObject!.ownerId
+      );
+    }
   }
 
   void _initializeControllers() {
@@ -81,31 +90,41 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
         intNumber:
             _controllers['intNumber']!.text.isNotEmpty
                 ? _controllers['intNumber']!.text
-                : null,
+                : '',
         neighborhood: _controllers['neighborhood']!.text,
         borough: _controllers['borough']!.text,
         city: _controllers['city']!.text,
         state: _controllers['state']!.text,
         zipCode: _controllers['zipCode']!.text,
         propertyTaxNumber: _controllers['propertyTaxNumber']!.text,
-        ownerId: _selectedOwner!.id,
-        status: 'disponible'
+        ownerId: _selectedOwner?.id,
+        status: 'disponible',
+        ownerName: _selectedOwner?.name
       );
-
-      print(_selectedOwner);
-
-      /*BlocProvider.of<PropertyBloc>(context).add(
+      BlocProvider.of<PropertyBloc>(context).add(
         propertyObject == null
             ? AddProperty(property: newProperty)
             : UpdateProperty(
               property: propertyObject!.copyWith(
                 name: newProperty.name,
-                ownerId: newProperty.ownerId,
+                unitNumber: newProperty.unitNumber,
+                street: newProperty.street,
+                extNumber: newProperty.extNumber,
+                intNumber: newProperty.intNumber,
+                neighborhood: newProperty.neighborhood,
+                borough: newProperty.borough,
+                city: newProperty.city,
+                state: newProperty.state,
+                zipCode: newProperty.zipCode,
+                propertyTaxNumber: newProperty.propertyTaxNumber,
+                ownerId: _selectedOwner?.id,
+                status: newProperty.status,
+                ownerName: _selectedOwner?.name
               ),
             ),
       );
-
-      Navigator.pop(context);*/
+      print(_selectedOwner?.toMap());
+      Navigator.pop(context);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Por favor, complete todos los campos')),
@@ -144,70 +163,7 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
                   _buildTextField(field, isRequired: field != 'intNumber'),
 
                 const SizedBox(height: 16),
-
-                // Dropdown de propietarios con botón para agregar nuevo
-                BlocBuilder<OwnerBloc, OwnerState>(
-                  builder: (context, state) {
-                    if (state is OwnerLoaded) {
-                      _owners = state.owners;
-
-                      if (_selectedOwner == null && _owners.isNotEmpty) {
-                        _selectedOwner = _owners.first;
-                      }
-
-                      return Row(
-                        children: [
-                          Expanded(
-                            child: DropdownButtonFormField<OwnerModel>(
-                              value: _selectedOwner,
-                              items:
-                                  _owners.map((owner) {
-                                    return DropdownMenuItem<OwnerModel>(
-                                      value: owner,
-                                      child: Text(owner.name),
-                                    );
-                                  }).toList(),
-                              onChanged: (OwnerModel? value) {
-                                setState(() {
-                                  _selectedOwner = value!;
-                                  print(_selectedOwner?.id);
-                                });
-                              },
-                              decoration: const InputDecoration(
-                                labelText: "Seleccionar propietario",
-                                border: OutlineInputBorder(),
-                              ),
-                              validator:
-                                  (value) =>
-                                      value == null
-                                          ? "Seleccione un propietario"
-                                          : null,
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          IconButton(
-                            icon: const Icon(Icons.add),
-                            onPressed: _navigateToAddOwnerPage,
-                          ),
-                        ],
-                      );
-                    } else if (state is OwnerLoading) {
-                      return const CircularProgressIndicator();
-                    } else {
-                      //return const Text("Error al cargar propietarios");
-                      return Row(
-                        children: [
-                          Text('No hay propietarios registrados'),
-                          IconButton(
-                            icon: Icon(Icons.add),
-                            onPressed: _navigateToAddOwnerPage,
-                          ),
-                        ],
-                      );
-                    }
-                  },
-                ),
-
+                _buildOwnerDropdown(),
                 const SizedBox(height: 20),
 
                 ElevatedButton(
@@ -260,5 +216,63 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
       'propertyTaxNumber': 'Número de cuenta predial',
     };
     return labels[field] ?? field;
+  }
+
+  Widget _buildOwnerDropdown() {
+    return BlocBuilder<OwnerBloc, OwnerState>(
+      builder: (context, state) {
+        if (state is OwnerLoading) {
+          return Center(child: CircularProgressIndicator());
+        } else if (state is OwnerLoaded) {
+          _owners = state.owners;
+          _setSelectedOwner(_owners);
+          return Row(
+            children: [
+              Expanded(
+                child: DropdownButtonFormField<OwnerModel>(
+                  value: _selectedOwner,
+                  onChanged: (OwnerModel? value) {
+                    setState(() {
+                      _selectedOwner = value!;
+                    });                    
+                  },
+                  items:
+                      state.owners.map((OwnerModel owner) {
+                        return DropdownMenuItem(
+                          value: owner,
+                          child: Text(owner.name),
+                        );
+                      }).toList(),
+                  decoration: InputDecoration(
+                    labelText: 'Seleccione propietario',
+                  ),
+                  validator:
+                      (value) =>
+                          value == null
+                              ? 'Por favor selecciona un propietario'
+                              : null,
+                ),
+              ),
+              SizedBox(width: 10),
+              IconButton(
+                icon: Icon(Icons.add),
+                onPressed: _navigateToAddOwnerPage,
+              ),
+            ],
+          );
+        } else if (state is OwnerError) {
+          return Text("Error: ${state.message}");
+        } else {
+          return Row(
+            children: [
+              IconButton(
+                icon: Icon(Icons.add),
+                onPressed: _navigateToAddOwnerPage,
+              ),
+            ],
+          );
+        }
+      },
+    );
   }
 }

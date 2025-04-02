@@ -63,6 +63,7 @@ class PropertyBloc extends Bloc<PropertyEvent, PropertyState> {
             event
                 .property
                 .ownerId, // Se usa ownerId en lugar de un objeto UserModel
+        status: event.property.status,
       );
 
       await repository.addProperty(newProperty);
