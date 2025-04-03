@@ -41,30 +41,7 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
     if (_selectedOwner == null && propertyObject != null) {
       _selectedOwner = owners.firstWhere(
         (owner) => owner.id == propertyObject!.ownerId,
-        orElse:
-            () => OwnerModel(
-              name: '',
-              email: '',
-              phone: '',
-              street: '',
-              extNumber: '',
-              neighborhood: '',
-              borough: '',
-              city: '',
-              state: '',
-              zipCode: '',
-            ),
       );
-    }
-
-    if (_selectedOwner!.id!.isEmpty) {
-      _selectedOwner = null;
-    }
-
-    // Verifica si _selectedOwner aún no está en la lista, si es así, lo pone en null
-    if (_selectedOwner != null &&
-        !owners.any((o) => o.id == _selectedOwner!.id)) {
-      _selectedOwner = null;
     }
   }
 
@@ -146,7 +123,6 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
               ),
             ),
       );
-      print(_selectedOwner?.toMap());
       Navigator.pop(context);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -184,6 +160,10 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
               children: [
                 for (var field in _controllers.keys)
                   _buildTextField(field, isRequired: field != 'intNumber'),
+                if (propertyObject != null)
+                  Text(
+                    'El propietario actual es: ${propertyObject!.ownerName}',
+                  ),
 
                 const SizedBox(height: 16),
                 _buildOwnerDropdown(),
@@ -255,7 +235,7 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
             children: [
               Expanded(
                 child: DropdownButtonFormField<OwnerModel>(
-                  value: _selectedOwner,
+                  value: null,
                   onChanged: (OwnerModel? value) {
                     setState(() {
                       _selectedOwner = value!;
