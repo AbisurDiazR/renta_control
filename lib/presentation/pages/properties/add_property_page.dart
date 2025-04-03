@@ -38,10 +38,33 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
   }
 
   void _setSelectedOwner(List<OwnerModel> owners) {
-    if (propertyObject != null) {
+    if (_selectedOwner == null && propertyObject != null) {
       _selectedOwner = owners.firstWhere(
-        (owner) => owner.id == propertyObject!.ownerId
+        (owner) => owner.id == propertyObject!.ownerId,
+        orElse:
+            () => OwnerModel(
+              name: '',
+              email: '',
+              phone: '',
+              street: '',
+              extNumber: '',
+              neighborhood: '',
+              borough: '',
+              city: '',
+              state: '',
+              zipCode: '',
+            ),
       );
+    }
+
+    if (_selectedOwner!.id!.isEmpty) {
+      _selectedOwner = null;
+    }
+
+    // Verifica si _selectedOwner aún no está en la lista, si es así, lo pone en null
+    if (_selectedOwner != null &&
+        !owners.any((o) => o.id == _selectedOwner!.id)) {
+      _selectedOwner = null;
     }
   }
 
@@ -99,7 +122,7 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
         propertyTaxNumber: _controllers['propertyTaxNumber']!.text,
         ownerId: _selectedOwner?.id,
         status: 'disponible',
-        ownerName: _selectedOwner?.name
+        ownerName: _selectedOwner?.name,
       );
       BlocProvider.of<PropertyBloc>(context).add(
         propertyObject == null
@@ -119,7 +142,7 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
                 propertyTaxNumber: newProperty.propertyTaxNumber,
                 ownerId: _selectedOwner?.id,
                 status: newProperty.status,
-                ownerName: _selectedOwner?.name
+                ownerName: _selectedOwner?.name,
               ),
             ),
       );
@@ -225,7 +248,9 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
           return Center(child: CircularProgressIndicator());
         } else if (state is OwnerLoaded) {
           _owners = state.owners;
-          _setSelectedOwner(_owners);
+          if (_selectedOwner == null && propertyObject != null) {
+            _setSelectedOwner(_owners);
+          }
           return Row(
             children: [
               Expanded(
@@ -234,7 +259,7 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
                   onChanged: (OwnerModel? value) {
                     setState(() {
                       _selectedOwner = value!;
-                    });                    
+                    });
                   },
                   items:
                       state.owners.map((OwnerModel owner) {
