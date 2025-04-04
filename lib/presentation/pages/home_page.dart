@@ -6,7 +6,7 @@ import 'package:renta_control/presentation/blocs/auth/auth_event.dart';
 import 'package:renta_control/presentation/pages/contracts/create_contract_page.dart';
 import 'package:renta_control/presentation/pages/properties/add_property_page.dart';
 import 'package:renta_control/presentation/pages/contracts/contracts_page.dart';
-import 'package:renta_control/presentation/pages/invoices_page.dart';
+import 'package:renta_control/presentation/pages/invoices/invoices_page.dart';
 import 'package:renta_control/presentation/pages/properties/properties_page.dart';
 import 'package:renta_control/presentation/pages/users_page.dart';
 
