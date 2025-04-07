@@ -4,6 +4,7 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:renta_control/presentation/blocs/auth/auth_bloc.dart';
 import 'package:renta_control/presentation/blocs/auth/auth_event.dart';
 import 'package:renta_control/presentation/pages/contracts/create_contract_page.dart';
+import 'package:renta_control/presentation/pages/invoices/create_invoice_page.dart';
 import 'package:renta_control/presentation/pages/properties/add_property_page.dart';
 import 'package:renta_control/presentation/pages/contracts/contracts_page.dart';
 import 'package:renta_control/presentation/pages/invoices/invoices_page.dart';
@@ -121,7 +122,12 @@ class _HomePageState extends State<HomePage> {
           SpeedDialChild(
             child: Icon(Icons.receipt),
             label: 'Generar factura',
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => CreateInvoicePage())
+              );
+            },
           ),
         ],
       ),
