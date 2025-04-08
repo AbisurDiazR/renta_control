@@ -37,7 +37,7 @@ void main() async {
   ).then((value) async {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     setupLocator();
-    await dotenv.load();
+    await dotenv.load(fileName: ".env");
     runApp(MyApp());
   });
 }
