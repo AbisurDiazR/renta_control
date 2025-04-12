@@ -1,0 +1,28 @@
+import 'package:renta_control/domain/models/invoice/cfdi.dart';
+
+final List<CFDI> cfdiList = [
+  CFDI(cfdiUse: 'G01', cfdiDescription: 'Adquisición de mercancías'),
+  CFDI(cfdiUse: 'G02', cfdiDescription: 'Devoluciones, descuentos o bonificaciones'),
+  CFDI(cfdiUse: 'G03', cfdiDescription: 'Gastos en general'),
+  CFDI(cfdiUse: 'I01', cfdiDescription: 'Construcciones'),
+  CFDI(cfdiUse: 'I02', cfdiDescription: 'Mobiliario y equipo de oficina para inversiones'),
+  CFDI(cfdiUse: 'I03', cfdiDescription: 'Equipo de transporte'),
+  CFDI(cfdiUse: 'I04', cfdiDescription: 'Equipo de cómputo y accesorios'),
+  CFDI(cfdiUse: 'I05', cfdiDescription: 'Dados, troqueles, moldes, matrices y herramental'),
+  CFDI(cfdiUse: 'I06', cfdiDescription: 'Comunicaciones telefónicas'),
+  CFDI(cfdiUse: 'I07', cfdiDescription: 'Comunicaciones satelitales'),
+  CFDI(cfdiUse: 'I08', cfdiDescription: 'Otra maquinaria y equipo'),
+  CFDI(cfdiUse: 'D01', cfdiDescription: 'Honorarios médicos, dentales y hospitalarios'),
+  CFDI(cfdiUse: 'D02', cfdiDescription: 'Gastos médicos por incapacidad o discapacidad'),
+  CFDI(cfdiUse: 'D03', cfdiDescription: 'Gastos funerales'),
+  CFDI(cfdiUse: 'D04', cfdiDescription: 'Donativos'),
+  CFDI(cfdiUse: 'D05', cfdiDescription: 'Intereses reales pagados por créditos hipotecarios'),
+  CFDI(cfdiUse: 'D06', cfdiDescription: 'Aportaciones voluntarias al SAR'),
+  CFDI(cfdiUse: 'D07', cfdiDescription: 'Primas de seguros de gastos médicos'),
+  CFDI(cfdiUse: 'D08', cfdiDescription: 'Gastos de transportación escolar obligatoria'),
+  CFDI(cfdiUse: 'D09', cfdiDescription: 'Depósitos en cuentas para el ahorro, primas de pensiones'),
+  CFDI(cfdiUse: 'D10', cfdiDescription: 'Pagos por servicios educativos (colegiaturas)'),
+  CFDI(cfdiUse: 'S01', cfdiDescription: 'Sin efectos fiscales'),
+  CFDI(cfdiUse: 'CP01', cfdiDescription: 'Pagos'),
+  CFDI(cfdiUse: 'CN01', cfdiDescription: 'Nómina'),
+];
