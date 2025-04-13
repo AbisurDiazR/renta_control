@@ -1,6 +1,8 @@
 // ignore_for_file: library_private_types_in_public_api
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:renta_control/domain/models/owner/owner_model.dart';
 import 'package:renta_control/domain/models/property/property.dart';
 import 'package:renta_control/presentation/blocs/owners/owner_bloc.dart';
@@ -23,7 +25,6 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
   final Map<String, TextEditingController> _controllers = {};
   Property? propertyObject;
   OwnerModel? _selectedOwner;
-  List<OwnerModel> _owners = [];
 
   @override
   void initState() {
@@ -37,17 +38,10 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
     BlocProvider.of<OwnerBloc>(context).add(FetchOwners());
   }
 
-  void _setSelectedOwner(List<OwnerModel> owners) {
-    if (_selectedOwner == null && propertyObject != null) {
-      _selectedOwner = owners.firstWhere(
-        (owner) => owner.id == propertyObject!.ownerId,
-      );
-    }
-  }
-
   void _initializeControllers() {
     final fields = [
       'name',
+      'price',
       'unitNumber',
       'street',
       'extNumber',
@@ -66,6 +60,7 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
 
     if (propertyObject != null) {
       _controllers['name']!.text = propertyObject!.name;
+      _controllers['price']!.text = propertyObject!.price.toStringAsFixed(2);
       _controllers['unitNumber']!.text = propertyObject!.unitNumber;
       _controllers['street']!.text = propertyObject!.street;
       _controllers['extNumber']!.text = propertyObject!.extNumber;
@@ -82,6 +77,9 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
 
   void _submitForm() {
     if (_formKey.currentState!.validate() && _selectedOwner != null) {
+      String keyProduct = dotenv.env['PRODUCT_KEY']!;
+      String keyUnit = dotenv.env['UNIT_KEY']!;
+
       final Property newProperty = Property(
         name: _controllers['name']!.text,
         unitNumber: _controllers['unitNumber']!.text,
@@ -100,7 +98,11 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
         ownerId: _selectedOwner?.id,
         status: 'disponible',
         ownerName: _selectedOwner?.name,
+        productKey: keyProduct,
+        unitKey: keyUnit,
+        price: double.parse(_controllers['price']!.text)
       );
+      print(newProperty.toMap());
       BlocProvider.of<PropertyBloc>(context).add(
         propertyObject == null
             ? AddProperty(property: newProperty)
@@ -186,6 +188,17 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
   }
 
   Widget _buildTextField(String field, {required bool isRequired}) {
+    TextInputType keyboardType = TextInputType.text;
+    List<TextInputFormatter>? inputFormatters;
+    
+    if(field == 'zipCode'){
+      keyboardType = TextInputType.number;
+    } else if(field == 'price'){
+      keyboardType = TextInputType.numberWithOptions(decimal: true);
+      inputFormatters = [
+        FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
+      ];
+    }
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextFormField(
@@ -200,6 +213,8 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
           }
           return null;
         },
+        keyboardType: keyboardType,
+        inputFormatters: inputFormatters,
       ),
     );
   }
@@ -207,6 +222,7 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
   String _getLabelText(String field) {
     final labels = {
       'name': 'Nombre de la propiedad',
+      'price': 'Precio de renta',
       'unitNumber': 'Número de departamento/local',
       'street': 'Calle',
       'extNumber': 'Número exterior',
@@ -227,15 +243,11 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
         if (state is OwnerLoading) {
           return Center(child: CircularProgressIndicator());
         } else if (state is OwnerLoaded) {
-          _owners = state.owners;
-          if (_selectedOwner == null && propertyObject != null) {
-            _setSelectedOwner(_owners);
-          }
           return Row(
             children: [
               Expanded(
                 child: DropdownButtonFormField<OwnerModel>(
-                  value: null,
+                  value: _selectedOwner,
                   onChanged: (OwnerModel? value) {
                     setState(() {
                       _selectedOwner = value!;
@@ -253,7 +265,7 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
                   ),
                   validator:
                       (value) =>
-                          value == null
+                          value == null && propertyObject == null
                               ? 'Por favor selecciona un propietario'
                               : null,
                 ),

@@ -1,54 +1,25 @@
 class Invoice {
-  final String legalName;
-  final String taxId;
-  final String email;
-  final String zip;
-  final String taxSystem;
-  final String paymentForm;
-  final String cfdiUse;
-  final String productDescription;
-  final String productKey;
-  final String unitKey;
-  final double productPrice;
-  final int productQuantity;
+  final String id;
+  final String customerName;
+  final String createdAt;
+  final String status;
+  final double total;
 
   Invoice({
-    required this.legalName,
-    required this.taxId,
-    required this.email,
-    required this.zip,
-    required this.taxSystem,
-    required this.paymentForm,
-    required this.cfdiUse,
-    required this.productDescription,
-    required this.productKey,
-    required this.unitKey,
-    required this.productPrice,
-    required this.productQuantity,
+    required this.id,
+    required this.customerName,
+    required this.createdAt,
+    required this.status,
+    required this.total,
   });
 
-  Map<String, dynamic> toJson() {
-    return {
-      'payment_form': paymentForm,
-      'use': cfdiUse,
-      'customer': {
-        'legal_name': legalName,
-        'tax_id': taxId,
-        'tax_system': taxSystem,
-        'email': email,
-        'address': {'zip': zip},
-      },
-      'items': [
-        {
-          'quantity': productQuantity,
-          'product': {
-            'description': productDescription,
-            'product_key': productKey,
-            'unit_key': unitKey,
-            'price': productPrice,
-          },
-        },
-      ],
-    };
+  factory Invoice.fromJson(Map<String, dynamic> json) {
+    return Invoice(
+      id: json['id'],
+      customerName: json['customer']['legal_name'],
+      createdAt: json['created_at'],
+      status: json['status'],
+      total: (json['total'] as num).toDouble(),
+    );
   }
 }

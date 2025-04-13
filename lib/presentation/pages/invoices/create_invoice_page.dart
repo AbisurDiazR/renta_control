@@ -1,14 +1,19 @@
-// ignore_for_file: library_private_types_in_public_api
+// ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:renta_control/domain/models/invoice/invoice.dart';
 import 'package:renta_control/domain/models/invoice/cfdi.dart';
 import 'package:renta_control/domain/models/invoice/payment.dart';
 import 'package:renta_control/domain/models/invoice/tax_regime.dart';
+import 'package:renta_control/domain/models/property/property.dart';
+import 'package:renta_control/presentation/blocs/properties/property_bloc.dart';
+import 'package:renta_control/presentation/blocs/properties/property_event.dart';
+import 'package:renta_control/presentation/blocs/properties/property_state.dart';
 import 'package:renta_control/utils/constants/cfdi_list.dart';
 import 'package:renta_control/utils/constants/payments_list.dart';
 import 'package:renta_control/utils/constants/tax_regime_list.dart';
@@ -29,11 +34,17 @@ class _CreateInvoicePageState extends State<CreateInvoicePage> {
   CFDI? _selectedInvoiceUse; // Codigo de uso de CFDI por defecto
   List<TaxRegime> taxRegimes = taxRegimesList;
   TaxRegime? _selectedTaxRegime; // Codigo de regimen fiscal por defecto
+  Property? _selectedProperty;
 
   @override
   void initState() {
     super.initState();
     _initializeControllers();
+    _fetchProperties();
+  }
+
+  void _fetchProperties() {
+    BlocProvider.of<PropertyBloc>(context).add(FetchProperties());
   }
 
   _initializeControllers() {
@@ -42,10 +53,6 @@ class _CreateInvoicePageState extends State<CreateInvoicePage> {
       'taxId',
       'email',
       'zip',
-      'productDescription',
-      'productKey',
-      'unitKey',
-      'productPrice',
       'productQuantity',
     ];
 
@@ -75,6 +82,8 @@ class _CreateInvoicePageState extends State<CreateInvoicePage> {
               children: [
                 for (var field in _controllers.keys)
                   _buildTextField(field, isRequired: true),
+                SizedBox(height: 20),
+                _buildPropertyDropdown(),
                 SizedBox(height: 20),
                 DropdownButtonFormField(
                   value: _selectedPaymentMethod,
@@ -181,11 +190,6 @@ class _CreateInvoicePageState extends State<CreateInvoicePage> {
       keyboardType = TextInputType.emailAddress;
     } else if (field == 'zip') {
       keyboardType = TextInputType.number;
-    } else if (field == 'productPrice') {
-      keyboardType = TextInputType.numberWithOptions(decimal: true);
-      inputFormatters = [
-        FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
-      ];
     } else if (field == 'productQuantity') {
       keyboardType = TextInputType.number;
       inputFormatters = [FilteringTextInputFormatter.digitsOnly];
@@ -216,10 +220,6 @@ class _CreateInvoicePageState extends State<CreateInvoicePage> {
       'taxId': 'RFC del Cliente',
       'email': 'Correo Electrónico del Cliente',
       'zip': 'Código Postal del Domicilio Fiscal',
-      'productDescription': 'Descripción del Producto o Servicio',
-      'productKey': 'Clave del Producto o Servicio',
-      'unitKey': 'Clave de Unidad de Medida (SAT)',
-      'productPrice': 'Precio Unitario',
       'productQuantity': 'Cantidad',
     };
     return labels[field] ?? field;
@@ -227,43 +227,29 @@ class _CreateInvoicePageState extends State<CreateInvoicePage> {
 
   void _submitForm() async {
     // Atributos de facturación
-    final url = Uri.parse('https://www.facturapi.io/v2/invoices');
+    final url = Uri.parse(dotenv.env['API_URL']!);
     final apiKey = dotenv.env['API_KEY'];
 
     if (_formKey.currentState!.validate()) {
-      final newInvoice = Invoice(
-        legalName: _controllers['legalName']!.text,
-        taxId: _controllers['taxId']!.text,
-        email: _controllers['email']!.text,
-        zip: _controllers['zip']!.text,
-        taxSystem: _selectedTaxRegime!.key,
-        paymentForm: _selectedPaymentMethod!.key,
-        cfdiUse: _selectedInvoiceUse!.cfdiUse,
-        productDescription: _controllers['productDescription']!.text,
-        productKey: _controllers['productKey']!.text,
-        unitKey: _controllers['unitKey']!.text,
-        productPrice: double.parse(_controllers['productPrice']!.text),
-        productQuantity: int.parse(_controllers['productQuantity']!.text),
-      );
 
       final body = {
-        "payment_form": newInvoice.paymentForm,
-        "use": newInvoice.cfdiUse,
+        "payment_form": _selectedPaymentMethod!.key,
+        "use": _selectedInvoiceUse!.cfdiUse,
         "customer": {
-          "legal_name": newInvoice.legalName,
-          "tax_id": newInvoice.taxId,
-          "tax_system": newInvoice.taxSystem,
-          "email": newInvoice.email,
-          "address": {"zip": newInvoice.zip},
+          "legal_name": _controllers['legalName']!.text,
+          "tax_id": _controllers['taxId']!.text,
+          "tax_system": _selectedTaxRegime!.key,
+          "email": _controllers['email']!.text,
+          "address": {"zip": _controllers['zip']!.text},
         },
         "items": [
           {
-            "quantity": newInvoice.productQuantity,
+            "quantity": int.parse(_controllers['productQuantity']!.text),
             "product": {
-              "description": newInvoice.productDescription,
-              "product_key": newInvoice.productKey,
-              "unit_key": newInvoice.unitKey,
-              "price": newInvoice.productPrice,
+              "description": "Renta de: ${_selectedProperty!.name}",
+              "product_key": _selectedProperty!.productKey,
+              "unit_key": _selectedProperty!.unitKey,
+              "price": _selectedProperty!.price,
             },
           },
         ],
@@ -299,5 +285,50 @@ class _CreateInvoicePageState extends State<CreateInvoicePage> {
         );
       }
     }
+  }
+
+  Widget _buildPropertyDropdown() {
+    return BlocBuilder<PropertyBloc, PropertyState>(
+      builder: (context, state) {
+        if (state is PropertyLoading) {
+          return Center(child: CircularProgressIndicator());
+        } else if (state is PropertyLoaded) {
+          return Row(
+            children: [
+              Expanded(
+                child: DropdownButtonFormField<Property>(
+                  value: _selectedProperty,
+                  onChanged: (Property? value) {
+                    setState(() {
+                      _selectedProperty = value!;
+                    });
+                  },
+                  items:
+                      state.properties.map((Property property) {
+                        return DropdownMenuItem(
+                          value: property,
+                          child: Text(property.name),
+                        );
+                      }).toList(),
+                  decoration: InputDecoration(
+                    labelText: 'Seleccione la propiedad',
+                    border: OutlineInputBorder()
+                  ),
+                  validator:
+                      (value) =>
+                          value == null
+                              ? 'Por favor seleccione una propiedad'
+                              : null,
+                ),
+              ),
+            ],
+          );
+        } else {
+          return Center(
+            child: Text('No se pudieron obtener la lista de propiedades'),
+          );
+        }
+      },
+    );
   }
 }

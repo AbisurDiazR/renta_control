@@ -1,4 +1,3 @@
-
 class Property {
   final String? id;
   final String name;
@@ -15,6 +14,9 @@ class Property {
   final String? ownerId; // ID del propietario
   final String? status;
   final String? ownerName;
+  final String productKey; // e.g., '80131500'
+  final String unitKey; // e.g., 'E48'
+  final double price; // e.g., 10000.00
 
   Property({
     this.id,
@@ -31,7 +33,10 @@ class Property {
     required this.propertyTaxNumber,
     required this.ownerId,
     this.status,
-    this.ownerName
+    this.ownerName,
+    required this.productKey,
+    required this.unitKey,
+    required this.price,
   });
 
   Property copyWith({
@@ -49,7 +54,10 @@ class Property {
     String? propertyTaxNumber,
     String? ownerId,
     String? status,
-    String? ownerName
+    String? ownerName,
+    String? productKey, // e.g., '80131500'
+    String? unitKey, // e.g., 'E48'
+    double? price, // e.g., 10000.00
   }) {
     return Property(
       id: id ?? this.id,
@@ -66,7 +74,10 @@ class Property {
       propertyTaxNumber: propertyTaxNumber ?? this.propertyTaxNumber,
       ownerId: ownerId ?? this.ownerId,
       status: status ?? this.status,
-      ownerName: ownerName ?? this.ownerName
+      ownerName: ownerName ?? this.ownerName,
+      productKey: productKey ?? this.productKey,
+      unitKey: unitKey ?? this.unitKey,
+      price: price ?? this.price,
     );
   }
 
@@ -86,7 +97,10 @@ class Property {
       'propertyTaxNumber': propertyTaxNumber,
       'ownerId': ownerId,
       'status': status,
-      'ownerName': ownerName
+      'ownerName': ownerName,
+      "productKey": productKey,
+      "unitKey": unitKey,
+      "price": price,
     };
   }
 }

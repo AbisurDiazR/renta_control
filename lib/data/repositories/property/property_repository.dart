@@ -20,7 +20,10 @@ class PropertyRepository {
         "propertyTaxNumber": property.propertyTaxNumber,
         "ownerId": property.ownerId,
         "status": property.status,
-        "ownerName": property.ownerName
+        "ownerName": property.ownerName,
+        "price": property.price,
+        "unitKey": property.unitKey,
+        "productKey": property.productKey
       });
     } catch (e) {
       throw Exception(e.toString());
@@ -55,7 +58,10 @@ class PropertyRepository {
           ownerId:
               data['ownerId'] ?? '', // Se usa ownerId en lugar de un UserModel
           status: data['status'],
-          ownerName: data['ownerName']
+          ownerName: data['ownerName'],
+          productKey: data['productKey'],
+          price: data['price'],
+          unitKey: data['unitKey']
         );
       }).toList();
     });
