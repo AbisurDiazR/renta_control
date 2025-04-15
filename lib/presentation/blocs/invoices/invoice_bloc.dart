@@ -25,7 +25,7 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
   ) async {
     emit(InvoiceLoading());
     await _invoiceSubscription?.cancel();
-    _invoiceSubscription = repository.fetchInvoices().listen(
+    _invoiceSubscription = repository.invoicesStream.listen(
       (invoices) {
         add(InvoicesUpdated(invoices: invoices));
       },
@@ -33,6 +33,7 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
         emit(InvoiceError(message: 'Error al cargar facturas: $error'));
       },
     );
+    await repository.fetchInvoices();
   }
 
   FutureOr<void> _onInvoicesUpdated(
