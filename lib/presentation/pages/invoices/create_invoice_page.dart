@@ -1,16 +1,14 @@
 // ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:http/http.dart' as http;
-import 'package:renta_control/domain/models/invoice/invoice.dart';
 import 'package:renta_control/domain/models/invoice/cfdi.dart';
+import 'package:renta_control/domain/models/invoice/invoice_request.dart';
 import 'package:renta_control/domain/models/invoice/payment.dart';
 import 'package:renta_control/domain/models/invoice/tax_regime.dart';
 import 'package:renta_control/domain/models/property/property.dart';
+import 'package:renta_control/presentation/blocs/invoices/invoice_bloc.dart';
+import 'package:renta_control/presentation/blocs/invoices/invoice_event.dart';
 import 'package:renta_control/presentation/blocs/properties/property_bloc.dart';
 import 'package:renta_control/presentation/blocs/properties/property_event.dart';
 import 'package:renta_control/presentation/blocs/properties/property_state.dart';
@@ -48,13 +46,7 @@ class _CreateInvoicePageState extends State<CreateInvoicePage> {
   }
 
   _initializeControllers() {
-    final fields = [
-      'legalName',
-      'taxId',
-      'email',
-      'zip',
-      'productQuantity',
-    ];
+    final fields = ['legalName', 'taxId', 'email', 'zip', 'productQuantity'];
 
     for (var field in fields) {
       _controllers[field] = TextEditingController();
@@ -226,64 +218,40 @@ class _CreateInvoicePageState extends State<CreateInvoicePage> {
   }
 
   void _submitForm() async {
-    // Atributos de facturación
-    final url = Uri.parse(dotenv.env['API_URL']!);
-    final apiKey = dotenv.env['API_KEY'];
-
     if (_formKey.currentState!.validate()) {
-
-      final body = {
-        "payment_form": _selectedPaymentMethod!.key,
-        "use": _selectedInvoiceUse!.cfdiUse,
-        "customer": {
-          "legal_name": _controllers['legalName']!.text,
-          "tax_id": _controllers['taxId']!.text,
-          "tax_system": _selectedTaxRegime!.key,
-          "email": _controllers['email']!.text,
-          "address": {"zip": _controllers['zip']!.text},
-        },
-        "items": [
-          {
-            "quantity": int.parse(_controllers['productQuantity']!.text),
-            "product": {
-              "description": "Renta de: ${_selectedProperty!.name}",
-              "product_key": _selectedProperty!.productKey,
-              "unit_key": _selectedProperty!.unitKey,
-              "price": _selectedProperty!.price,
-            },
-          },
-        ],
-      };
-
-      try {
-        final response = await http.post(
-          url,
-          headers: {
-            'Authorization': 'Bearer $apiKey',
-            'Content-Type': 'application/json',
-          },
-          body: jsonEncode(body),
-        );
-
-        if (response.statusCode == 200) {
-          // Factura creada con éxito
-          print('Factura creada: ${response.body}');
-          Navigator.pop(context);
-        } else {
-          // Error en la creación
-          print('Error al crear factura: ${response.body}');
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('Error al crear la factura')));
-        }
-      } catch (e) {
-        print('Excepción al enviar la solicitud: $e');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Ocurrió un error al conectar con el servidor'),
+      final invoiceRequest = InvoiceRequest(
+        paymentForm: _selectedPaymentMethod!.key,
+        use: _selectedInvoiceUse!.cfdiUse,
+        customer: Customer(
+          legalName: _controllers['legalName']!.text,
+          taxId: _controllers['taxId']!.text,
+          taxSystem: _selectedTaxRegime!.key,
+          email: _controllers['email']!.text,
+          address: Address(zip: _controllers['zip']!.text),
+        ),
+        items: [
+          Item(
+            quantity: int.parse(_controllers['productQuantity']!.text),
+            product: Product(
+              description: 'Renta de: ${_selectedProperty!.name}',
+              productKey: _selectedProperty!.productKey,
+              unitKey: _selectedProperty!.unitKey,
+              price: _selectedProperty!.price,
+            ),
           ),
-        );
-      }
+        ],
+      );
+
+      // Enviar evento para crear factura
+      BlocProvider.of<InvoiceBloc>(
+        context,
+      ).add(CreateInvoice(invoiceRequest: invoiceRequest));
+
+      Navigator.pop(context);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Por favor, complete todos los campos')),
+      );
     }
   }
 
@@ -312,7 +280,7 @@ class _CreateInvoicePageState extends State<CreateInvoicePage> {
                       }).toList(),
                   decoration: InputDecoration(
                     labelText: 'Seleccione la propiedad',
-                    border: OutlineInputBorder()
+                    border: OutlineInputBorder(),
                   ),
                   validator:
                       (value) =>

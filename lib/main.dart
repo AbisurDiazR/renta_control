@@ -6,6 +6,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get_it/get_it.dart';
 import 'package:renta_control/data/repositories/auth/auth_repository.dart';
 import 'package:renta_control/data/repositories/contract/contract_repository.dart';
+import 'package:renta_control/data/repositories/invoice/invoice_repository.dart';
 import 'package:renta_control/data/repositories/owner/owner_repository.dart';
 import 'package:renta_control/data/repositories/property/property_repository.dart';
 import 'package:renta_control/firebase_options.dart';
@@ -13,6 +14,7 @@ import 'package:renta_control/presentation/blocs/auth/auth_bloc.dart';
 import 'package:renta_control/presentation/blocs/auth/auth_event.dart';
 import 'package:renta_control/presentation/blocs/auth/auth_state.dart';
 import 'package:renta_control/presentation/blocs/contracts/contract_bloc.dart';
+import 'package:renta_control/presentation/blocs/invoices/invoice_bloc.dart';
 import 'package:renta_control/presentation/blocs/owners/owner_bloc.dart';
 import 'package:renta_control/presentation/blocs/properties/property_bloc.dart';
 import 'package:renta_control/presentation/pages/home_page.dart';
@@ -28,6 +30,7 @@ void setupLocator() {
   getIt.registerLazySingleton<PropertyRepository>(() => PropertyRepository());
   getIt.registerLazySingleton<ContractRepository>(() => ContractRepository());
   getIt.registerLazySingleton<OwnerRepository>(() => OwnerRepository());
+  getIt.registerLazySingleton<InvoiceRepository>(() => InvoiceRepository());
 }
 
 void main() async {
@@ -56,6 +59,7 @@ class MyApp extends StatelessWidget {
         RepositoryProvider(create: (_) => getIt<PropertyRepository>()),
         RepositoryProvider(create: (_) => getIt<ContractRepository>()),
         RepositoryProvider(create: (_) => getIt<OwnerRepository>()),
+        RepositoryProvider(create: (_) => getIt<InvoiceRepository>()),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -81,6 +85,11 @@ class MyApp extends StatelessWidget {
             create:
                 (context) =>
                     OwnerBloc(repository: context.read<OwnerRepository>()),
+          ),
+          BlocProvider(
+            create:
+                (context) =>
+                    InvoiceBloc(repository: context.read<InvoiceRepository>()),
           ),
         ],
         child: MaterialApp(

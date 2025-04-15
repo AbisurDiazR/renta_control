@@ -1,13 +1,14 @@
 import 'package:equatable/equatable.dart';
+import 'package:renta_control/domain/models/invoice/invoice_request.dart';
 
 abstract class InvoiceEvent extends Equatable {
   @override
   List<Object> get props => [];
 }
 
-class FetchInvoices extends InvoiceEvent{}
+class FetchInvoices extends InvoiceEvent {}
 
-class SearchInvoices extends InvoiceEvent{
+class SearchInvoices extends InvoiceEvent {
   final String query;
 
   SearchInvoices({required this.query});
@@ -15,3 +16,13 @@ class SearchInvoices extends InvoiceEvent{
   @override
   List<Object> get props => [query];
 }
+
+class CreateInvoice extends InvoiceEvent {
+  final InvoiceRequest invoiceRequest;
+
+  CreateInvoice({required this.invoiceRequest});
+
+  @override
+  List<Object> get props => [invoiceRequest];
+}
+class InvoiceCreated extends InvoiceEvent {}

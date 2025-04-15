@@ -102,7 +102,6 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
         unitKey: keyUnit,
         price: double.parse(_controllers['price']!.text)
       );
-      print(newProperty.toMap());
       BlocProvider.of<PropertyBloc>(context).add(
         propertyObject == null
             ? AddProperty(property: newProperty)

@@ -2,16 +2,16 @@ import 'package:equatable/equatable.dart';
 import 'package:renta_control/domain/models/invoice/invoice.dart';
 import 'package:renta_control/presentation/blocs/invoices/invoice_event.dart';
 
-abstract class InvoiceState extends Equatable{
-  @override  
+abstract class InvoiceState extends Equatable {
+  @override
   List<Object> get props => [];
 }
 
-class InvoiceInitial extends InvoiceState{}
+class InvoiceInitial extends InvoiceState {}
 
-class InvoiceLoading extends InvoiceState{}
+class InvoiceLoading extends InvoiceState {}
 
-class InvoiceLoaded extends InvoiceState{
+class InvoiceLoaded extends InvoiceState {
   final List<Invoice> invoices;
 
   InvoiceLoaded({required this.invoices});
@@ -20,7 +20,7 @@ class InvoiceLoaded extends InvoiceState{
   List<Object> get props => [invoices];
 }
 
-class InvoiceError extends InvoiceState{
+class InvoiceError extends InvoiceState {
   final String message;
 
   InvoiceError({required this.message});
@@ -29,7 +29,7 @@ class InvoiceError extends InvoiceState{
   List<Object> get props => [message];
 }
 
-class InvoicesUpdated extends InvoiceEvent{
+class InvoicesUpdated extends InvoiceEvent {
   final List<Invoice> invoices;
 
   InvoicesUpdated({required this.invoices});
