@@ -25,4 +25,17 @@ class CreateInvoice extends InvoiceEvent {
   @override
   List<Object> get props => [invoiceRequest];
 }
+
 class InvoiceCreated extends InvoiceEvent {}
+
+class DownloadInvoiceFile extends InvoiceEvent {
+  final String invoiceId;
+  final String fileType; // 'pdf', 'xml' o 'zip'
+  final String savePath;
+
+  DownloadInvoiceFile({
+    required this.invoiceId,
+    required this.fileType,
+    required this.savePath,
+  });
+}

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:renta_control/domain/models/invoice/invoice.dart';
@@ -57,5 +58,29 @@ class InvoiceRepository {
 
   void dispose() {
     _invoiceController.close();
+  }
+
+  Future<void> downloadInvoiceFile({
+    required String invoiceId,
+    required String fileType, // 'pdf', 'xml' o 'zip'
+    required String savePath,
+  }) async {
+    final url = Uri.parse(
+      '$_baseUrl/$invoiceId/$fileType',
+    );
+
+    final response = await http.get(
+      url,
+      headers: {'Authorization': 'Bearer $_apiKey'},
+    );
+
+    if (response.statusCode == 200) {
+      final file = File(savePath);
+      await file.writeAsBytes(response.bodyBytes);
+      await fetchInvoices();
+      print('Archivo guardado en: $savePath');
+    } else {
+      throw Exception('Error al descargar el archivo: ${response.statusCode}');
+    }
   }
 }

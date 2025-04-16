@@ -41,7 +41,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Lista de propiedades')),
+      appBar: AppBar(title: Text('Control de rentas')),
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,

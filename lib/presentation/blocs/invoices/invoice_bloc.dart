@@ -17,6 +17,7 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
     on<CreateInvoice>(_onCreateInvoice);
     on<InvoiceCreated>(_onInvoiceCreated);
     on<SearchInvoices>(_onIvoicesSearch);
+    on<DownloadInvoiceFile>(_onDownloadInvoiceFile);
   }
 
   FutureOr<void> _onFetchInvoices(
@@ -86,5 +87,22 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
   FutureOr<void> _onInvoiceCreated(event, Emitter<InvoiceState> emit) {
     // Puedes reutilizar la lógica de _onFetchInvoices para actualizar el listado
     add(FetchInvoices());
+  }
+
+  Future<void> _onDownloadInvoiceFile(
+    DownloadInvoiceFile event,
+    Emitter<InvoiceState> emit,
+  ) async {
+    emit(InvoiceDownloadInProgress());
+    try {
+      await repository.downloadInvoiceFile(
+        invoiceId: event.invoiceId,
+        fileType: event.fileType,
+        savePath: event.savePath,
+      );
+      emit(InvoiceDownloadSuccess(filePath: event.savePath));
+    } catch (e) {
+      emit(InvoiceDownloadFailure(error: e.toString()));
+    }
   }
 }
