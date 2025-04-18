@@ -5,13 +5,16 @@ import 'package:renta_control/presentation/blocs/auth/auth_bloc.dart';
 import 'package:renta_control/presentation/blocs/auth/auth_event.dart';
 import 'package:renta_control/presentation/pages/contracts/create_contract_page.dart';
 import 'package:renta_control/presentation/pages/invoices/create_invoice_page.dart';
+import 'package:renta_control/presentation/pages/owners/add_owner_page.dart';
+import 'package:renta_control/presentation/pages/owners/owners_page.dart';
 import 'package:renta_control/presentation/pages/properties/add_property_page.dart';
 import 'package:renta_control/presentation/pages/contracts/contracts_page.dart';
 import 'package:renta_control/presentation/pages/invoices/invoices_page.dart';
 import 'package:renta_control/presentation/pages/properties/properties_page.dart';
+import 'package:renta_control/presentation/pages/tenants/add_tenant.dart';
 import 'package:renta_control/presentation/pages/users_page.dart';
 
-class HomePage extends StatefulWidget{
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
@@ -20,24 +23,24 @@ class HomePage extends StatefulWidget{
 }
 
 class _HomePageState extends State<HomePage> {
-
   int _selectedIndex = 0;
 
   final List<Widget> _pages = [
     PropertiesPage(),
     ContractsPage(),
     InvoicesPage(),
-    UsersPage()
+    UsersPage(),
+    OwnerPage(),
   ];
 
   //Metodo para actualizar el indice seleccionado
-  void _onItemTapped(int index){
+  void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
     Navigator.pop(context);
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,15 +50,10 @@ class _HomePageState extends State<HomePage> {
           padding: EdgeInsets.zero,
           children: <Widget>[
             DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
+              decoration: BoxDecoration(color: Colors.blue),
               child: Text(
                 'Menú de navegación',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                ),
+                style: TextStyle(color: Colors.white, fontSize: 24),
               ),
             ),
             ListTile(
@@ -78,7 +76,12 @@ class _HomePageState extends State<HomePage> {
               title: Text('Usuarios'),
               onTap: () => _onItemTapped(3),
             ),
-            Divider(height: 50,),
+            ListTile(
+              leading: Icon(Icons.person_pin),
+              title: Text('Propietarios'),
+              onTap: () => _onItemTapped(4),
+            ),
+            Divider(height: 50),
             ListTile(
               leading: Icon(Icons.exit_to_app),
               title: Text('Cerrar sesión'),
@@ -110,12 +113,32 @@ class _HomePageState extends State<HomePage> {
             onTap: () {},
           ),
           SpeedDialChild(
+            child: Icon(Icons.person_pin),
+            label: 'Registrar propietario',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AddOwnerPage()),
+              );
+            },
+          ),
+          SpeedDialChild(
+            child: Icon(Icons.person_outlined),
+            label: 'Registrar inquilino',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AddTenantPage()),
+              );
+            },
+          ),
+          SpeedDialChild(
             child: Icon(Icons.assignment),
             label: 'Generar contrato',
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => CreateContractPage())
+                MaterialPageRoute(builder: (context) => CreateContractPage()),
               );
             },
           ),
@@ -125,7 +148,7 @@ class _HomePageState extends State<HomePage> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => CreateInvoicePage())
+                MaterialPageRoute(builder: (context) => CreateInvoicePage()),
               );
             },
           ),

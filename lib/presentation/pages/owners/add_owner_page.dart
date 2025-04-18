@@ -7,7 +7,8 @@ import 'package:renta_control/presentation/blocs/owners/owner_bloc.dart';
 import 'package:renta_control/presentation/blocs/owners/owner_event.dart';
 
 class AddOwnerPage extends StatefulWidget {
-  const AddOwnerPage({super.key});
+  final OwnerModel? owner;
+  const AddOwnerPage({super.key, this.owner});
 
   @override
   _AddOwnerPageState createState() => _AddOwnerPageState();

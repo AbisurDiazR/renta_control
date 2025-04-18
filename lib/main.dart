@@ -9,6 +9,7 @@ import 'package:renta_control/data/repositories/contract/contract_repository.dar
 import 'package:renta_control/data/repositories/invoice/invoice_repository.dart';
 import 'package:renta_control/data/repositories/owner/owner_repository.dart';
 import 'package:renta_control/data/repositories/property/property_repository.dart';
+import 'package:renta_control/data/repositories/tenant/tenant_repository.dart';
 import 'package:renta_control/firebase_options.dart';
 import 'package:renta_control/presentation/blocs/auth/auth_bloc.dart';
 import 'package:renta_control/presentation/blocs/auth/auth_event.dart';
@@ -17,6 +18,7 @@ import 'package:renta_control/presentation/blocs/contracts/contract_bloc.dart';
 import 'package:renta_control/presentation/blocs/invoices/invoice_bloc.dart';
 import 'package:renta_control/presentation/blocs/owners/owner_bloc.dart';
 import 'package:renta_control/presentation/blocs/properties/property_bloc.dart';
+import 'package:renta_control/presentation/blocs/tenant/tenant_bloc.dart';
 import 'package:renta_control/presentation/pages/home_page.dart';
 import 'package:renta_control/presentation/pages/login_page.dart';
 import 'package:renta_control/presentation/pages/splash_page.dart';
@@ -31,6 +33,7 @@ void setupLocator() {
   getIt.registerLazySingleton<ContractRepository>(() => ContractRepository());
   getIt.registerLazySingleton<OwnerRepository>(() => OwnerRepository());
   getIt.registerLazySingleton<InvoiceRepository>(() => InvoiceRepository());
+  getIt.registerLazySingleton<TenantRepository>(() => TenantRepository());
 }
 
 void main() async {
@@ -60,6 +63,7 @@ class MyApp extends StatelessWidget {
         RepositoryProvider(create: (_) => getIt<ContractRepository>()),
         RepositoryProvider(create: (_) => getIt<OwnerRepository>()),
         RepositoryProvider(create: (_) => getIt<InvoiceRepository>()),
+        RepositoryProvider(create: (_) => getIt<TenantRepository>()),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -90,6 +94,11 @@ class MyApp extends StatelessWidget {
             create:
                 (context) =>
                     InvoiceBloc(repository: context.read<InvoiceRepository>()),
+          ),
+          BlocProvider(
+            create:
+                (context) =>
+                    TenantBloc(repository: context.read<TenantRepository>()),
           ),
         ],
         child: MaterialApp(

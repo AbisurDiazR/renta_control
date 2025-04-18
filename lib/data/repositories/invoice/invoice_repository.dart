@@ -48,7 +48,6 @@ class InvoiceRepository {
         // Factura creada con éxito, refrescar la lista
         await fetchInvoices();
       } else {
-        print("Error al crear factura: ${response.body}");
         throw Exception('Error al crear la factura: ${response.body}');
       }
     } catch (e) {
@@ -78,7 +77,6 @@ class InvoiceRepository {
       final file = File(savePath);
       await file.writeAsBytes(response.bodyBytes);
       await fetchInvoices();
-      print('Archivo guardado en: $savePath');
     } else {
       throw Exception('Error al descargar el archivo: ${response.statusCode}');
     }
