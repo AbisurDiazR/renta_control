@@ -261,6 +261,7 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
                       }).toList(),
                   decoration: InputDecoration(
                     labelText: 'Seleccione propietario',
+                    border: OutlineInputBorder()
                   ),
                   validator:
                       (value) =>

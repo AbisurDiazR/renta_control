@@ -1,6 +1,7 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:renta_control/domain/models/owner/owner_model.dart';
 import 'package:renta_control/presentation/blocs/owners/owner_bloc.dart';
@@ -80,6 +81,19 @@ class _AddOwnerPageState extends State<AddOwnerPage> {
   }
 
   Widget _buildTextField(String field, {required bool isRequired}) {
+    TextInputType keyboardType = TextInputType.text;
+    List<TextInputFormatter>? inputFormatters;
+    
+    if(field == 'phone' || field == 'zipCode'){
+      keyboardType = TextInputType.number;
+    } else if(field == 'email') {
+      keyboardType = TextInputType.emailAddress;
+    } else if(field == 'monthlyIncome'){
+      keyboardType = TextInputType.numberWithOptions(decimal: true);
+      inputFormatters = [
+        FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
+      ];
+    }
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextFormField(
@@ -94,6 +108,8 @@ class _AddOwnerPageState extends State<AddOwnerPage> {
           }
           return null;
         },
+        keyboardType: keyboardType,
+        inputFormatters: inputFormatters,
       ),
     );
   }

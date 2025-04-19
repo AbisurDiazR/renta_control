@@ -7,25 +7,9 @@ class TenantRepository {
 
   Future<void> addTenant(Tenant tenant) async {
     try {
-      /*await _tenantsCollection.add({
-        "fullName": tenant.fullName,
-        "email": tenant.email,
-        "phone": tenant.phone,
-        "documentType": tenant.documentType,
-        "documentNumber": tenant.documentNumber,
-        "occupation": tenant.occupation,
-        "monthlyIncome": tenant.monthlyIncome,
-        "street": tenant.street,
-        "extNumber": tenant.extNumber,
-        "neighborhood": tenant.neighborhood,
-        "borough": tenant.borough,
-        "city": tenant.city,
-        "state": tenant.state,
-        "zipCode": tenant.zipCode,
-      });*/
       await _tenantsCollection.add(tenant.toMap());
     } catch (e) {
-      throw Exception(e.toString());
+      throw Exception(e.toString());      
     }
   }
 

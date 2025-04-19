@@ -12,6 +12,7 @@ import 'package:renta_control/presentation/pages/contracts/contracts_page.dart';
 import 'package:renta_control/presentation/pages/invoices/invoices_page.dart';
 import 'package:renta_control/presentation/pages/properties/properties_page.dart';
 import 'package:renta_control/presentation/pages/tenants/add_tenant.dart';
+import 'package:renta_control/presentation/pages/tenants/tenants_page.dart';
 import 'package:renta_control/presentation/pages/users_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -31,6 +32,7 @@ class _HomePageState extends State<HomePage> {
     InvoicesPage(),
     UsersPage(),
     OwnerPage(),
+    TenantsPage()
   ];
 
   //Metodo para actualizar el indice seleccionado
@@ -80,6 +82,11 @@ class _HomePageState extends State<HomePage> {
               leading: Icon(Icons.person_pin),
               title: Text('Propietarios'),
               onTap: () => _onItemTapped(4),
+            ),
+            ListTile(
+              leading: Icon(Icons.person_outline),
+              title: Text('Inquilinos'),
+              onTap: () => _onItemTapped(5),
             ),
             Divider(height: 50),
             ListTile(

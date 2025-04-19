@@ -69,7 +69,7 @@ class TenantBloc extends Bloc<TenantEvent, TenantState> {
     final query = event.query.toLowerCase();
     final filteredTenants =
         currentState.tenants.where((tenant) {
-          return tenant.fullName.toUpperCase().contains(query) ||
+          return tenant.fullName.toLowerCase().contains(query) ||
               tenant.street.toLowerCase().contains(query) ||
               tenant.zipCode.contains(query);
         }).toList();
