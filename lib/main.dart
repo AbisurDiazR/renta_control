@@ -6,6 +6,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get_it/get_it.dart';
 import 'package:renta_control/data/repositories/auth/auth_repository.dart';
 import 'package:renta_control/data/repositories/contract/contract_repository.dart';
+import 'package:renta_control/data/repositories/guarantor/guarantor_repository.dart';
 import 'package:renta_control/data/repositories/invoice/invoice_repository.dart';
 import 'package:renta_control/data/repositories/owner/owner_repository.dart';
 import 'package:renta_control/data/repositories/property/property_repository.dart';
@@ -15,6 +16,7 @@ import 'package:renta_control/presentation/blocs/auth/auth_bloc.dart';
 import 'package:renta_control/presentation/blocs/auth/auth_event.dart';
 import 'package:renta_control/presentation/blocs/auth/auth_state.dart';
 import 'package:renta_control/presentation/blocs/contracts/contract_bloc.dart';
+import 'package:renta_control/presentation/blocs/guarantor/guarantor_bloc.dart';
 import 'package:renta_control/presentation/blocs/invoices/invoice_bloc.dart';
 import 'package:renta_control/presentation/blocs/owners/owner_bloc.dart';
 import 'package:renta_control/presentation/blocs/properties/property_bloc.dart';
@@ -34,6 +36,7 @@ void setupLocator() {
   getIt.registerLazySingleton<OwnerRepository>(() => OwnerRepository());
   getIt.registerLazySingleton<InvoiceRepository>(() => InvoiceRepository());
   getIt.registerLazySingleton<TenantRepository>(() => TenantRepository());
+  getIt.registerLazySingleton<GuarantorRepository>(() => GuarantorRepository());
 }
 
 void main() async {
@@ -64,6 +67,7 @@ class MyApp extends StatelessWidget {
         RepositoryProvider(create: (_) => getIt<OwnerRepository>()),
         RepositoryProvider(create: (_) => getIt<InvoiceRepository>()),
         RepositoryProvider(create: (_) => getIt<TenantRepository>()),
+        RepositoryProvider(create: (_) => getIt<GuarantorRepository>()),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -99,6 +103,12 @@ class MyApp extends StatelessWidget {
             create:
                 (context) =>
                     TenantBloc(repository: context.read<TenantRepository>()),
+          ),
+          BlocProvider(
+            create:
+                (context) => GuarantorBloc(
+                  repository: context.read<GuarantorRepository>(),
+                ),
           ),
         ],
         child: MaterialApp(

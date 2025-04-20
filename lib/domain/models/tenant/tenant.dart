@@ -83,28 +83,6 @@ class Tenant {
 
   Map<String, dynamic> toMap() {
     return {
-      "fullName": fullName,
-      "email": email,
-      "phone": phone,
-      "documentType": documentType,
-      "documentNumber": documentNumber,
-      "occupation": occupation,
-      "monthlyIncome": monthlyIncome,
-      "employer": employer,
-      "street": street,
-      "extNumber": state,
-      "intNumber": intNumber,
-      "neighborhood": neighborhood,
-      "borough": borough,
-      "city": city,
-      "state": state,
-      "zipCode": zipCode,
-      "notes": notes,
-    };
-  }
-
-  Map<String, dynamic> updateToMap() {
-    return {
       "id": id,
       "fullName": fullName,
       "email": email,

@@ -1,7 +1,6 @@
 class Property {
   final String? id;
   final String name;
-  final String unitNumber; // Número de departamento/local
   final String street; // Calle
   final String extNumber; // Número exterior
   final String? intNumber; // Número interior (Opcional)
@@ -10,18 +9,14 @@ class Property {
   final String city; // Ciudad
   final String state; // Estado
   final String zipCode; // Código postal
-  final String propertyTaxNumber; // Número de cuenta predial
+  final String notes; // Número de cuenta predial
   final String? ownerId; // ID del propietario
   final String? status;
   final String? ownerName;
-  final String productKey; // e.g., '80131500'
-  final String unitKey; // e.g., 'E48'
-  final double price; // e.g., 10000.00
 
   Property({
     this.id,
     required this.name,
-    required this.unitNumber,
     required this.street,
     required this.extNumber,
     this.intNumber,
@@ -30,13 +25,10 @@ class Property {
     required this.city,
     required this.state,
     required this.zipCode,
-    required this.propertyTaxNumber,
+    required this.notes,
     required this.ownerId,
     this.status,
     this.ownerName,
-    required this.productKey,
-    required this.unitKey,
-    required this.price,
   });
 
   Property copyWith({
@@ -51,7 +43,7 @@ class Property {
     String? city,
     String? state,
     String? zipCode,
-    String? propertyTaxNumber,
+    String? notes,
     String? ownerId,
     String? status,
     String? ownerName,
@@ -62,7 +54,6 @@ class Property {
     return Property(
       id: id ?? this.id,
       name: name ?? this.name,
-      unitNumber: unitNumber ?? this.unitNumber,
       street: street ?? this.street,
       extNumber: extNumber ?? this.extNumber,
       intNumber: intNumber ?? this.intNumber,
@@ -71,13 +62,10 @@ class Property {
       city: city ?? this.city,
       state: state ?? this.state,
       zipCode: zipCode ?? this.zipCode,
-      propertyTaxNumber: propertyTaxNumber ?? this.propertyTaxNumber,
+      notes: notes ?? this.notes,
       ownerId: ownerId ?? this.ownerId,
       status: status ?? this.status,
       ownerName: ownerName ?? this.ownerName,
-      productKey: productKey ?? this.productKey,
-      unitKey: unitKey ?? this.unitKey,
-      price: price ?? this.price,
     );
   }
 
@@ -85,7 +73,6 @@ class Property {
     return {
       'id': id,
       'name': name,
-      'unitNumber': unitNumber,
       'street': street,
       'extNumber': extNumber,
       'intNumber': intNumber, // Puede ser null
@@ -94,13 +81,29 @@ class Property {
       'city': city,
       'state': state,
       'zipCode': zipCode,
-      'propertyTaxNumber': propertyTaxNumber,
+      'notes': notes,
       'ownerId': ownerId,
       'status': status,
       'ownerName': ownerName,
-      "productKey": productKey,
-      "unitKey": unitKey,
-      "price": price,
     };
+  }
+
+  factory Property.fromMap(Map<String, dynamic> map, String documentId) {
+    return Property(
+      id: documentId,
+      name: map['name'],
+      street: map['street'],
+      extNumber: map['extNumber'],
+      intNumber: map['intNumber'],
+      neighborhood: map['neighborhood'],
+      borough: map['borough'],
+      city: map['city'],
+      state: map['state'],
+      zipCode: map['zipCode'],
+      notes: map['notes'],
+      ownerId: map['ownerId'],
+      status: map['status'],
+      ownerName: map['ownerName'],
+    );
   }
 }

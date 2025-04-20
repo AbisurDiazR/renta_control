@@ -4,6 +4,8 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:renta_control/presentation/blocs/auth/auth_bloc.dart';
 import 'package:renta_control/presentation/blocs/auth/auth_event.dart';
 import 'package:renta_control/presentation/pages/contracts/create_contract_page.dart';
+import 'package:renta_control/presentation/pages/guarantors/add_guarantor.dart';
+import 'package:renta_control/presentation/pages/guarantors/guarantors_page.dart';
 import 'package:renta_control/presentation/pages/invoices/create_invoice_page.dart';
 import 'package:renta_control/presentation/pages/owners/add_owner_page.dart';
 import 'package:renta_control/presentation/pages/owners/owners_page.dart';
@@ -32,7 +34,8 @@ class _HomePageState extends State<HomePage> {
     InvoicesPage(),
     UsersPage(),
     OwnerPage(),
-    TenantsPage()
+    TenantsPage(),
+    GuarantorsPage(),
   ];
 
   //Metodo para actualizar el indice seleccionado
@@ -88,6 +91,11 @@ class _HomePageState extends State<HomePage> {
               title: Text('Inquilinos'),
               onTap: () => _onItemTapped(5),
             ),
+            ListTile(
+              leading: Icon(Icons.person_add),
+              title: Text('Fiadores'),
+              onTap: () => _onItemTapped(6),
+            ),
             Divider(height: 50),
             ListTile(
               leading: Icon(Icons.exit_to_app),
@@ -136,6 +144,16 @@ class _HomePageState extends State<HomePage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => AddTenantPage()),
+              );
+            },
+          ),
+          SpeedDialChild(
+            child: Icon(Icons.person_add_alt),
+            label: 'Registrar fiador',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AddGuarantorPage()),
               );
             },
           ),

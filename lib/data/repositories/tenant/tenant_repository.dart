@@ -13,7 +13,7 @@ class TenantRepository {
     }
   }
 
-  Future<void> updateTenant(Tenant tenant) async {
+  Future<void> updateTenant(Tenant tenant) async {    
     try {
       await _tenantsCollection.doc(tenant.id).update(tenant.toMap());
     } catch (e) {

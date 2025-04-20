@@ -234,9 +234,9 @@ class _CreateInvoicePageState extends State<CreateInvoicePage> {
             quantity: int.parse(_controllers['productQuantity']!.text),
             product: Product(
               description: 'Renta de: ${_selectedProperty!.name}',
-              productKey: _selectedProperty!.productKey,
-              unitKey: _selectedProperty!.unitKey,
-              price: _selectedProperty!.price,
+              productKey: '80131500',
+              unitKey: 'E48',
+              price: 10000.00,
             ),
           ),
         ],

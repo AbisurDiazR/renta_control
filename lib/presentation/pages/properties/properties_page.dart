@@ -18,7 +18,7 @@ class PropertiesPage extends StatelessWidget {
           )..add(FetchProperties()),
       child: Column(
         children: [
-          Padding(padding: EdgeInsets.all(8.0), child: SearchBar()),
+          Padding(padding: EdgeInsets.all(8.0), child: PropertySearchBar()),
           Expanded(
             child: BlocBuilder<PropertyBloc, PropertyState>(
               builder: (context, state) {
@@ -79,8 +79,8 @@ class PropertiesPage extends StatelessWidget {
   }
 }
 
-class SearchBar extends StatelessWidget {
-  const SearchBar({super.key});
+class PropertySearchBar extends StatelessWidget {
+  const PropertySearchBar({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -88,10 +88,14 @@ class SearchBar extends StatelessWidget {
       decoration: InputDecoration(
         hintText: 'Buscar propiedades...',
         border: OutlineInputBorder(),
-        prefix: Icon(Icons.search),
+        prefixIcon: Icon(Icons.search),
       ),
       onChanged: (query) {
-        context.read<PropertyBloc>().add(SearchProperties(query: query));
+        if (query.isEmpty) {
+          context.read<PropertyBloc>().add(FetchProperties());
+        } else {
+          context.read<PropertyBloc>().add(SearchProperties(query: query));
+        }
       },
     );
   }

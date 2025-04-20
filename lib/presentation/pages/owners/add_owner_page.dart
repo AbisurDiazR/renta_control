@@ -18,10 +18,12 @@ class AddOwnerPage extends StatefulWidget {
 class _AddOwnerPageState extends State<AddOwnerPage> {
   final _formKey = GlobalKey<FormState>();
   final Map<String, TextEditingController> _controllers = {};
+  OwnerModel? ownerObject;
 
   @override
   void initState() {
     super.initState();
+    ownerObject = widget.owner;
     _initializeControllers();
   }
 
@@ -42,6 +44,20 @@ class _AddOwnerPageState extends State<AddOwnerPage> {
 
     for (var field in fields) {
       _controllers[field] = TextEditingController();
+    }
+
+    if (ownerObject != null) {
+      _controllers['name']!.text = ownerObject!.name;
+      _controllers['email']!.text = ownerObject!.email;
+      _controllers['phone']!.text = ownerObject!.phone;
+      _controllers['street']!.text = ownerObject!.street;
+      _controllers['extNumber']!.text = ownerObject!.extNumber;
+      _controllers['intNumber']!.text = ownerObject!.intNumber ?? '';
+      _controllers['neighborhood']!.text = ownerObject!.neighborhood;
+      _controllers['borough']!.text = ownerObject!.borough;
+      _controllers['city']!.text = ownerObject!.city;
+      _controllers['state']!.text = ownerObject!.state;
+      _controllers['zipCode']!.text = ownerObject!.zipCode;
     }
   }
 
@@ -70,7 +86,11 @@ class _AddOwnerPageState extends State<AddOwnerPage> {
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: _submitForm,
-                  child: const Text("Guardar Propietario"),
+                  child: Text(
+                    ownerObject == null
+                        ? "Guardar Propietario"
+                        : "Actualizar Propietario",
+                  ),
                 ),
               ],
             ),
@@ -83,12 +103,12 @@ class _AddOwnerPageState extends State<AddOwnerPage> {
   Widget _buildTextField(String field, {required bool isRequired}) {
     TextInputType keyboardType = TextInputType.text;
     List<TextInputFormatter>? inputFormatters;
-    
-    if(field == 'phone' || field == 'zipCode'){
+
+    if (field == 'phone' || field == 'zipCode') {
       keyboardType = TextInputType.number;
-    } else if(field == 'email') {
+    } else if (field == 'email') {
       keyboardType = TextInputType.emailAddress;
-    } else if(field == 'monthlyIncome'){
+    } else if (field == 'monthlyIncome') {
       keyboardType = TextInputType.numberWithOptions(decimal: true);
       inputFormatters = [
         FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
@@ -140,9 +160,10 @@ class _AddOwnerPageState extends State<AddOwnerPage> {
         phone: _controllers['phone']!.text,
         street: _controllers['street']!.text,
         extNumber: _controllers['extNumber']!.text,
-        intNumber: _controllers['intNumber']!.text.isNotEmpty
-            ? _controllers['intNumber']!.text
-            : null,
+        intNumber:
+            _controllers['intNumber']!.text.isNotEmpty
+                ? _controllers['intNumber']!.text
+                : null,
         neighborhood: _controllers['neighborhood']!.text,
         borough: _controllers['borough']!.text,
         city: _controllers['city']!.text,
@@ -151,7 +172,11 @@ class _AddOwnerPageState extends State<AddOwnerPage> {
       );
 
       // Enviar evento para agregar propietario
-      BlocProvider.of<OwnerBloc>(context).add(AddOwner(owner: newOwner));
+      BlocProvider.of<OwnerBloc>(context).add(
+        ownerObject == null
+            ? AddOwner(owner: newOwner)
+            : UpdateOwner(owner: newOwner.copyWith(id: ownerObject!.id)),
+      );
 
       // Cerrar la pantalla después de guardar
       Navigator.pop(context);

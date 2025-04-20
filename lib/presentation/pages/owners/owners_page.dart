@@ -5,6 +5,7 @@ import 'package:renta_control/presentation/blocs/owners/owner_bloc.dart';
 import 'package:renta_control/presentation/blocs/owners/owner_event.dart';
 import 'package:renta_control/presentation/blocs/owners/owner_state.dart';
 import 'package:renta_control/presentation/pages/owners/add_owner_page.dart';
+import 'package:renta_control/presentation/pages/owners/owner_properties_list.dart';
 
 class OwnerPage extends StatelessWidget {
   const OwnerPage({super.key});
@@ -52,6 +53,18 @@ class OwnerPage extends StatelessWidget {
                             ),
                           ],
                         ),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.arrow_right),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (_) => OwnerPropertiesList(owner: owner),
+                              ),
+                            );
+                          },
+                        ),
                         onTap: () {
                           Navigator.push(
                             context,
@@ -89,7 +102,11 @@ class OwnerSearchBar extends StatelessWidget {
         prefixIcon: Icon(Icons.search),
       ),
       onChanged: (query) {
-        context.read<OwnerBloc>().add(SearchOwners(query: query));
+        if (query.isEmpty) {
+          context.read<OwnerBloc>().add(FetchOwners());
+        } else {
+          context.read<OwnerBloc>().add(SearchOwners(query: query));
+        }
       },
     );
   }

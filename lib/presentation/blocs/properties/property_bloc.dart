@@ -7,7 +7,7 @@ import 'package:renta_control/presentation/blocs/properties/property_state.dart'
 
 class PropertyBloc extends Bloc<PropertyEvent, PropertyState> {
   final PropertyRepository repository;
-  StreamSubscription<List<Property>>? _propertiesSubscription;  
+  StreamSubscription<List<Property>>? _propertiesSubscription;
 
   PropertyBloc({required this.repository}) : super(PropertyInitial()) {
     on<FetchProperties>(_onFetchProperties);
@@ -45,12 +45,10 @@ class PropertyBloc extends Bloc<PropertyEvent, PropertyState> {
   FutureOr<void> _onAddProperty(
     AddProperty event,
     Emitter<PropertyState> emit,
-  ) async {   
-    
+  ) async {
     try {
       final newProperty = Property(
         name: event.property.name,
-        unitNumber: event.property.unitNumber,
         street: event.property.street,
         extNumber: event.property.extNumber,
         intNumber: event.property.intNumber, // Puede ser null
@@ -59,16 +57,13 @@ class PropertyBloc extends Bloc<PropertyEvent, PropertyState> {
         city: event.property.city,
         state: event.property.state,
         zipCode: event.property.zipCode,
-        propertyTaxNumber: event.property.propertyTaxNumber,
+        notes: event.property.notes,
         ownerId:
             event
                 .property
                 .ownerId, // Se usa ownerId en lugar de un objeto UserModel
         status: event.property.status,
         ownerName: event.property.ownerName,
-        productKey: event.property.productKey,
-        unitKey: event.property.unitKey,
-        price: event.property.price
       );
 
       await repository.addProperty(newProperty);

@@ -17,7 +17,7 @@ class ContractsPage extends StatelessWidget {
           )..add(FetchContracts()),
       child: Column(
         children: [
-          Padding(padding: EdgeInsets.all(8.0), child: SearchBar(),),
+          Padding(padding: EdgeInsets.all(8.0), child: ContractSearchBar(),),
           Expanded(
             child: BlocBuilder<ContractBloc, ContractState>(
               builder: (context, state) {
@@ -50,8 +50,8 @@ class ContractsPage extends StatelessWidget {
   }
 }
 
-class SearchBar extends StatelessWidget {
-  const SearchBar({super.key});
+class ContractSearchBar extends StatelessWidget {
+  const ContractSearchBar({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +62,11 @@ class SearchBar extends StatelessWidget {
         prefix: Icon(Icons.search),
       ),
       onChanged: (query) {
-        context.read<ContractBloc>().add(SearchContracts(query: query));
+        if (query.isEmpty) {
+          context.read<ContractBloc>().add(FetchContracts());
+        } else {
+          context.read<ContractBloc>().add(SearchContracts(query: query));
+        }
       },
     );
   }

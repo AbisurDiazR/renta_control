@@ -23,10 +23,12 @@ class _AddTenantPageState extends State<AddTenantPage> {
     'Cédula Profesional',
   ];
   String? _selectedDocumentType;
+  Tenant? _tenant;
 
   @override
   void initState() {
     super.initState();
+    _tenant = widget.tenant;
     _initializeControllers();
   }
 
@@ -54,6 +56,26 @@ class _AddTenantPageState extends State<AddTenantPage> {
     for (var field in fields) {
       _controllers[field] = TextEditingController();
     }
+
+    if (_tenant != null) {
+      _controllers['fullName']!.text = _tenant!.fullName;
+      _controllers['email']!.text = _tenant!.email;
+      _controllers['phone']!.text = _tenant!.phone;
+      _selectedDocumentType = _tenant!.documentType;
+      _controllers['documentNumber']!.text = _tenant!.documentNumber;
+      _controllers['occupation']!.text = _tenant!.occupation;
+      _controllers['monthlyIncome']!.text = _tenant!.monthlyIncome.toString();
+      _controllers['employer']!.text = _tenant!.employer ?? '';
+      _controllers['street']!.text = _tenant!.street;
+      _controllers['extNumber']!.text = _tenant!.extNumber;
+      _controllers['intNumber']!.text = _tenant!.intNumber ?? '';
+      _controllers['neighborhood']!.text = _tenant!.neighborhood;
+      _controllers['borough']!.text = _tenant!.borough;
+      _controllers['city']!.text = _tenant!.city;
+      _controllers['state']!.text = _tenant!.state;
+      _controllers['zipCode']!.text = _tenant!.zipCode;
+      _controllers['notes']!.text = _tenant?.notes ?? '';
+    }
   }
 
   @override
@@ -67,9 +89,9 @@ class _AddTenantPageState extends State<AddTenantPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Agregar Inquilino")),
+      appBar: AppBar(title: Text("Agregar Inquilino")),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: SingleChildScrollView(
@@ -77,10 +99,14 @@ class _AddTenantPageState extends State<AddTenantPage> {
               children: [
                 for (var field in _controllers.keys)
                   _buildTextField(field, isRequired: _isFieldRequired(field)),
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: _submitForm,
-                  child: const Text("Guardar Inquilino"),
+                  child: Text(
+                    _tenant == null
+                        ? "Agregar Inquilino"
+                        : "Actualizar Inquilino",
+                  ),
                 ),
               ],
             ),
@@ -96,7 +122,7 @@ class _AddTenantPageState extends State<AddTenantPage> {
         padding: EdgeInsets.symmetric(vertical: 8.0),
         child: DropdownButtonFormField<String>(
           decoration: InputDecoration(
-            labelText: 'Tipo de documento',
+            labelText: _getLabelText(field),
             border: OutlineInputBorder(),
           ),
           value: _selectedDocumentType,
@@ -212,7 +238,11 @@ class _AddTenantPageState extends State<AddTenantPage> {
       );
 
       // Enviar evento para agregar inquilino
-      BlocProvider.of<TenantBloc>(context).add(AddTenant(tenant: newTenant));
+      BlocProvider.of<TenantBloc>(context).add(
+        _tenant == null
+            ? AddTenant(tenant: newTenant)
+            : UpdateTenant(tenant: newTenant.copyWith(id: _tenant!.id)),
+      );
 
       // Cerrar la pantalla después de guardar
       Navigator.pop(context);

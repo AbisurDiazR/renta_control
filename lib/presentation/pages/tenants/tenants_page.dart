@@ -19,7 +19,7 @@ class TenantsPage extends StatelessWidget {
       child: Scaffold(
         body: Column(
           children: [
-            Padding(padding: EdgeInsets.all(8.0), child: SearchBar()),
+            Padding(padding: EdgeInsets.all(8.0), child: TenantSearchBar()),
             Expanded(
               child: BlocBuilder<TenantBloc, TenantState>(
                 builder: (context, state) {
@@ -71,8 +71,8 @@ class TenantsPage extends StatelessWidget {
   }
 }
 
-class SearchBar extends StatelessWidget {
-  const SearchBar({super.key});
+class TenantSearchBar extends StatelessWidget {
+  const TenantSearchBar({super.key});
 
   @override
   Widget build(BuildContext context) {

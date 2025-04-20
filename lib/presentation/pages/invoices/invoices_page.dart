@@ -54,7 +54,7 @@ class InvoicesPage extends StatelessWidget {
         },
         child: Column(
           children: [
-            Padding(padding: EdgeInsets.all(8.0), child: SearchBar()),
+            Padding(padding: EdgeInsets.all(8.0), child: InvoiceSearchBar()),
             Expanded(
               child: BlocBuilder<InvoiceBloc, InvoiceState>(
                 builder: (context, state) {
@@ -182,8 +182,8 @@ class InvoicesPage extends StatelessWidget {
   }
 }
 
-class SearchBar extends StatelessWidget {
-  const SearchBar({super.key});
+class InvoiceSearchBar extends StatelessWidget {
+  const InvoiceSearchBar({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -194,7 +194,11 @@ class SearchBar extends StatelessWidget {
         prefixIcon: Icon(Icons.search),
       ),
       onChanged: (query) {
-        context.read<InvoiceBloc>().add(SearchInvoices(query: query));
+        if (query.isEmpty) {
+          context.read<InvoiceBloc>().add(FetchInvoices());
+        } else {
+          context.read<InvoiceBloc>().add(SearchInvoices(query: query));
+        }
       },
     );
   }

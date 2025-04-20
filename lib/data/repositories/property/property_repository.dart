@@ -7,24 +7,7 @@ class PropertyRepository {
 
   Future<void> addProperty(Property property) async {
     try {
-      await _propertiesCollection.add({
-        "name": property.name,
-        "unitNumber": property.unitNumber,
-        "street": property.street,
-        "extNumber": property.extNumber,
-        "neighborhood": property.neighborhood,
-        "borough": property.borough,
-        "city": property.city,
-        "state": property.state,
-        "zipCode": property.zipCode,
-        "propertyTaxNumber": property.propertyTaxNumber,
-        "ownerId": property.ownerId,
-        "status": property.status,
-        "ownerName": property.ownerName,
-        "price": property.price,
-        "unitKey": property.unitKey,
-        "productKey": property.productKey
-      });
+      await _propertiesCollection.add(property.toMap());
     } catch (e) {
       throw Exception(e.toString());
     }
@@ -41,28 +24,7 @@ class PropertyRepository {
   Stream<List<Property>> fetchProperties() {
     return _propertiesCollection.snapshots().map((querySnapshot) {
       return querySnapshot.docs.map((doc) {
-        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-        return Property(
-          id: doc.id,
-          name: data['name'] ?? '',
-          unitNumber: data['unitNumber'] ?? '',
-          street: data['street'] ?? '',
-          extNumber: data['extNumber'] ?? '',
-          intNumber: data['intNumber'], // Puede ser null
-          neighborhood: data['neighborhood'] ?? '',
-          borough: data['borough'] ?? '',
-          city: data['city'] ?? '',
-          state: data['state'] ?? '',
-          zipCode: data['zipCode'] ?? '',
-          propertyTaxNumber: data['propertyTaxNumber'] ?? '',
-          ownerId:
-              data['ownerId'] ?? '', // Se usa ownerId en lugar de un UserModel
-          status: data['status'],
-          ownerName: data['ownerName'],
-          productKey: data['productKey'],
-          price: data['price'],
-          unitKey: data['unitKey']
-        );
+        return Property.fromMap(doc.data() as Map<String, dynamic>, doc.id);
       }).toList();
     });
   }

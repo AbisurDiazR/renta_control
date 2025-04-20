@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:renta_control/domain/models/owner/owner_model.dart';
 import 'package:renta_control/domain/models/property/property.dart';
 import 'package:renta_control/presentation/blocs/owners/owner_bloc.dart';
@@ -41,8 +40,6 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
   void _initializeControllers() {
     final fields = [
       'name',
-      'price',
-      'unitNumber',
       'street',
       'extNumber',
       'intNumber',
@@ -51,7 +48,7 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
       'city',
       'state',
       'zipCode',
-      'propertyTaxNumber',
+      'notes',
     ];
 
     for (var field in fields) {
@@ -60,8 +57,6 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
 
     if (propertyObject != null) {
       _controllers['name']!.text = propertyObject!.name;
-      _controllers['price']!.text = propertyObject!.price.toStringAsFixed(2);
-      _controllers['unitNumber']!.text = propertyObject!.unitNumber;
       _controllers['street']!.text = propertyObject!.street;
       _controllers['extNumber']!.text = propertyObject!.extNumber;
       _controllers['intNumber']!.text = propertyObject!.intNumber ?? '';
@@ -70,19 +65,16 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
       _controllers['city']!.text = propertyObject!.city;
       _controllers['state']!.text = propertyObject!.state;
       _controllers['zipCode']!.text = propertyObject!.zipCode;
-      _controllers['propertyTaxNumber']!.text =
-          propertyObject!.propertyTaxNumber;
+      _controllers['notes']!.text =
+          propertyObject!.notes;
     }
   }
 
   void _submitForm() {
     if (_formKey.currentState!.validate() && _selectedOwner != null) {
-      String keyProduct = dotenv.env['PRODUCT_KEY']!;
-      String keyUnit = dotenv.env['UNIT_KEY']!;
 
       final Property newProperty = Property(
         name: _controllers['name']!.text,
-        unitNumber: _controllers['unitNumber']!.text,
         street: _controllers['street']!.text,
         extNumber: _controllers['extNumber']!.text,
         intNumber:
@@ -94,13 +86,9 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
         city: _controllers['city']!.text,
         state: _controllers['state']!.text,
         zipCode: _controllers['zipCode']!.text,
-        propertyTaxNumber: _controllers['propertyTaxNumber']!.text,
+        notes: _controllers['notes']!.text,
         ownerId: _selectedOwner?.id,
         status: 'disponible',
-        ownerName: _selectedOwner?.name,
-        productKey: keyProduct,
-        unitKey: keyUnit,
-        price: double.parse(_controllers['price']!.text)
       );
       BlocProvider.of<PropertyBloc>(context).add(
         propertyObject == null
@@ -108,7 +96,6 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
             : UpdateProperty(
               property: propertyObject!.copyWith(
                 name: newProperty.name,
-                unitNumber: newProperty.unitNumber,
                 street: newProperty.street,
                 extNumber: newProperty.extNumber,
                 intNumber: newProperty.intNumber,
@@ -117,7 +104,7 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
                 city: newProperty.city,
                 state: newProperty.state,
                 zipCode: newProperty.zipCode,
-                propertyTaxNumber: newProperty.propertyTaxNumber,
+                notes: newProperty.notes,
                 ownerId: _selectedOwner?.id,
                 status: newProperty.status,
                 ownerName: _selectedOwner?.name,
@@ -221,8 +208,6 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
   String _getLabelText(String field) {
     final labels = {
       'name': 'Nombre de la propiedad',
-      'price': 'Precio de renta',
-      'unitNumber': 'Número de departamento/local',
       'street': 'Calle',
       'extNumber': 'Número exterior',
       'intNumber': 'Número interior (opcional)',
@@ -231,7 +216,7 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
       'city': 'Ciudad',
       'state': 'Estado',
       'zipCode': 'Código Postal',
-      'propertyTaxNumber': 'Número de cuenta predial',
+      'notes': 'Comentarios',
     };
     return labels[field] ?? field;
   }
