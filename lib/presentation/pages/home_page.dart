@@ -15,7 +15,8 @@ import 'package:renta_control/presentation/pages/invoices/invoices_page.dart';
 import 'package:renta_control/presentation/pages/properties/properties_page.dart';
 import 'package:renta_control/presentation/pages/tenants/add_tenant.dart';
 import 'package:renta_control/presentation/pages/tenants/tenants_page.dart';
-import 'package:renta_control/presentation/pages/users_page.dart';
+import 'package:renta_control/presentation/pages/users/add_user.dart';
+import 'package:renta_control/presentation/pages/users/users_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -125,7 +126,12 @@ class _HomePageState extends State<HomePage> {
           SpeedDialChild(
             child: Icon(Icons.person_add),
             label: 'Registrar usuario',
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AddUserPage()),
+              );
+            },
           ),
           SpeedDialChild(
             child: Icon(Icons.person_pin),
