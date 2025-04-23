@@ -11,6 +11,7 @@ import 'package:renta_control/data/repositories/invoice/invoice_repository.dart'
 import 'package:renta_control/data/repositories/owner/owner_repository.dart';
 import 'package:renta_control/data/repositories/property/property_repository.dart';
 import 'package:renta_control/data/repositories/tenant/tenant_repository.dart';
+import 'package:renta_control/data/repositories/users/user_repository.dart';
 import 'package:renta_control/firebase_options.dart';
 import 'package:renta_control/presentation/blocs/auth/auth_bloc.dart';
 import 'package:renta_control/presentation/blocs/auth/auth_event.dart';
@@ -21,9 +22,12 @@ import 'package:renta_control/presentation/blocs/invoices/invoice_bloc.dart';
 import 'package:renta_control/presentation/blocs/owners/owner_bloc.dart';
 import 'package:renta_control/presentation/blocs/properties/property_bloc.dart';
 import 'package:renta_control/presentation/blocs/tenant/tenant_bloc.dart';
+import 'package:renta_control/presentation/blocs/user/user_bloc.dart';
 import 'package:renta_control/presentation/pages/home_page.dart';
 import 'package:renta_control/presentation/pages/login_page.dart';
 import 'package:renta_control/presentation/pages/splash_page.dart';
+import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 //Configuración de la instancia de inyección de dependencias
 final getIt = GetIt.instance;
@@ -37,6 +41,7 @@ void setupLocator() {
   getIt.registerLazySingleton<InvoiceRepository>(() => InvoiceRepository());
   getIt.registerLazySingleton<TenantRepository>(() => TenantRepository());
   getIt.registerLazySingleton<GuarantorRepository>(() => GuarantorRepository());
+  getIt.registerLazySingleton<UserRepository>(() => UserRepository());
 }
 
 void main() async {
@@ -44,6 +49,8 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   ).then((value) async {
+    await initializeDateFormatting('es');
+    Intl.defaultLocale = 'es';
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     setupLocator();
     await dotenv.load(fileName: ".env");
@@ -68,6 +75,7 @@ class MyApp extends StatelessWidget {
         RepositoryProvider(create: (_) => getIt<InvoiceRepository>()),
         RepositoryProvider(create: (_) => getIt<TenantRepository>()),
         RepositoryProvider(create: (_) => getIt<GuarantorRepository>()),
+        RepositoryProvider(create: (_) => getIt<UserRepository>()),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -109,6 +117,11 @@ class MyApp extends StatelessWidget {
                 (context) => GuarantorBloc(
                   repository: context.read<GuarantorRepository>(),
                 ),
+          ),
+          BlocProvider(
+            create:
+                (context) =>
+                    UserBloc(userRepository: context.read<UserRepository>()),
           ),
         ],
         child: MaterialApp(

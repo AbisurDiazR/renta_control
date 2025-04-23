@@ -2,7 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:renta_control/domain/models/user/user.dart';
+import 'package:renta_control/presentation/blocs/user/user_bloc.dart';
+import 'package:renta_control/presentation/blocs/user/user_event.dart';
 
 class AddUserPage extends StatefulWidget {
   final User? user;
@@ -25,13 +28,14 @@ class _AddUserPageState extends State<AddUserPage> {
   }
 
   void _initializeControllers() {
-    final fields = ['email', 'name','password'];
+    final fields = ['email', 'name', 'password'];
 
     for (var field in fields) {
       _controllers[field] = TextEditingController();
     }
 
     if (widget.user != null) {
+      print(widget.user!.toMap());
       _controllers['email']?.text = widget.user!.email;
       _controllers['name']?.text = widget.user!.name;
       _controllers['password']?.text = widget.user!.password;
@@ -77,6 +81,7 @@ class _AddUserPageState extends State<AddUserPage> {
   Widget _buildTextField(String field, {required bool isRequired}) {
     TextInputType keyboardType = TextInputType.text;
     List<TextInputFormatter> inputFormatters = [];
+    bool obscureText = false;
     if (field == 'email') {
       keyboardType = TextInputType.emailAddress;
       inputFormatters = [FilteringTextInputFormatter.deny(RegExp(r'\s'))];
@@ -84,6 +89,7 @@ class _AddUserPageState extends State<AddUserPage> {
       keyboardType = TextInputType.name;
     } else if (field == 'password') {
       keyboardType = TextInputType.visiblePassword;
+      obscureText = true;
       inputFormatters = [FilteringTextInputFormatter.deny(RegExp(r'\s'))];
     }
     return Padding(
@@ -108,6 +114,7 @@ class _AddUserPageState extends State<AddUserPage> {
         },
         keyboardType: keyboardType,
         inputFormatters: inputFormatters,
+        obscureText: obscureText,
       ),
     );
   }
@@ -132,5 +139,21 @@ class _AddUserPageState extends State<AddUserPage> {
     return labels[field] ?? field;
   }
 
-  void _submitForm() {}
+  void _submitForm() {
+    if (_formKey.currentState!.validate()) {
+      final user = User(
+        email: _controllers['email']!.text,
+        name: _controllers['name']!.text,
+        password: _controllers['password']!.text,
+      );
+
+      BlocProvider.of<UserBloc>(context).add(
+        widget.user == null
+            ? AddUser(user: user)
+            : UpdateUser(user: user.copyWith(id: widget.user!.id)),
+      );
+
+      Navigator.pop(context, user); // Regresar el usuario creado/actualizado
+    }
+  }
 }

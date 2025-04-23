@@ -35,7 +35,11 @@ class GuarantorsPage extends StatelessWidget {
                       itemBuilder: (context, index) {
                         final guarantor = guarantors[index];
                         return ListTile(
-                          leading: Icon(Icons.person),
+                          leading: CircleAvatar(
+                            child: Text(
+                              guarantor.fullName.isNotEmpty ? guarantor.fullName[0] : '?',
+                            ),
+                          ),
                           title: Text(guarantor.fullName),
                             subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,

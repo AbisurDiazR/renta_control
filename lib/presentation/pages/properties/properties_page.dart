@@ -30,6 +30,7 @@ class PropertiesPage extends StatelessWidget {
                     itemBuilder: (context, index) {
                       final property = state.properties[index];
                       return ListTile(
+                        leading: Icon(Icons.home),
                         title: Text(
                           property.name,
                           style: TextStyle(fontWeight: FontWeight.bold),

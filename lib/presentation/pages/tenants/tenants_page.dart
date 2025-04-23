@@ -31,7 +31,13 @@ class TenantsPage extends StatelessWidget {
                       itemBuilder: (context, index) {
                         final tenant = state.tenants[index];
                         return ListTile(
-                          leading: const Icon(Icons.person),
+                          leading: CircleAvatar(
+                            child: Text(
+                              tenant.fullName.isNotEmpty
+                                  ? tenant.fullName[0]
+                                  : '?',
+                            ),
+                          ),
                           title: Text(
                             tenant.fullName,
                           ), // Replace with tenant name

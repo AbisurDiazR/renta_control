@@ -37,6 +37,11 @@ class OwnerPage extends StatelessWidget {
                     itemBuilder: (context, index) {
                       final owner = state.owners[index];
                       return ListTile(
+                        leading: CircleAvatar(
+                          child: Text(
+                            owner.name.isNotEmpty ? owner.name[0] : '?',
+                          ),
+                        ),
                         title: Text(
                           owner.name,
                           style: const TextStyle(fontWeight: FontWeight.bold),

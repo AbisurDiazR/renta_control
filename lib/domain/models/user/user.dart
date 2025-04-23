@@ -17,6 +17,26 @@ class User {
     this.disabled = false,
   });
 
+  User copyWith({
+    String? id,
+    String? name,
+    String? email,
+    String? password,
+    String? updatedAt,
+    String? createdAt,
+    bool? disabled,
+  }) {
+    return User(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      password: password ?? this.password,
+      updatedAt: updatedAt ?? this.updatedAt,
+      createdAt: createdAt ?? this.createdAt,
+      disabled: disabled ?? this.disabled,
+    );
+  }
+
   Map<String, dynamic> toMap() {
     return {
       'id': id,
