@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -47,6 +49,42 @@ class UsersPage extends StatelessWidget {
                                 'Creado en: ${DateFormat.yMMMMd('es').add_Hm().format(DateTime.parse(user.createdAt ?? '1970-01-01T00:00:00'))}',
                               ),
                             ],
+                          ),
+                          trailing: IconButton(
+                            icon: Icon(Icons.delete),
+                            onPressed: () async {
+                              final confirm = await showDialog<bool>(
+                                context: context,
+                                builder:
+                                    (context) => AlertDialog(
+                                      title: Text('Confirmar eliminación'),
+                                      content: Text(
+                                        '¿Estás seguro de que deseas borrar a "${user.name}"?',
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed:
+                                              () => Navigator.of(
+                                                context,
+                                              ).pop(false),
+                                          child: Text('Cancelar'),
+                                        ),
+                                        TextButton(
+                                          onPressed:
+                                              () => Navigator.of(
+                                                context,
+                                              ).pop(true),
+                                          child: Text('Borrar'),
+                                        ),
+                                      ],
+                                    ),
+                              );
+                              if (confirm == true) {
+                                context.read<UserBloc>().add(
+                                  DeleteUser(id: user.id!),
+                                );
+                              }
+                            },
                           ),
                           onTap: () {
                             final currentUserEmail =

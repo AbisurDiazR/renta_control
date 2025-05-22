@@ -28,4 +28,12 @@ class PropertyRepository {
       }).toList();
     });
   }
+
+  Future<void> deleteProperty(String propertyId) async {
+    try {
+      await _propertiesCollection.doc(propertyId).delete();
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+  }
 }

@@ -33,3 +33,5 @@ class UserError extends UserState {
 class UserUpdated extends UserState {}
 
 class UserAdded extends UserState {}
+
+class UserDeleted extends UserState {}

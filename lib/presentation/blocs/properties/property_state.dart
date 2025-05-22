@@ -39,3 +39,12 @@ class PropertiesUpdated extends PropertyEvent{
   @override
   List<Object> get props => [properties];
 }
+
+class PropertyDeleted extends PropertyState{
+  final List<Property> properties;
+
+  PropertyDeleted({required this.properties});
+
+  @override
+  List<Object> get props => [properties];
+}

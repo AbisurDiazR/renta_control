@@ -45,3 +45,12 @@ class UsersUpdated extends UserEvent {
   @override
   List<Object> get props => [users];
 }
+
+class DeleteUser extends UserEvent {
+  final String id;
+
+  const DeleteUser({required this.id});
+
+  @override
+  List<Object> get props => [id];
+}

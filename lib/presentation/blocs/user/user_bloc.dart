@@ -16,6 +16,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     on<AddUser>(_onAddUser);
     on<UpdateUser>(_onUpdateUser);
     on<SearchUsers>(_onSearchUsers);
+    on<DeleteUser>(_onDeleteUser);
   }
 
   FutureOr<void> _onFetchUsers(FetchUsers event, Emitter<UserState> emit) {
@@ -58,6 +59,15 @@ class UserBloc extends Bloc<UserEvent, UserState> {
               user.email.toLowerCase().contains(query);
         }).toList();
     emit(UserLoaded(users: filteredUsers));
+  }
+
+  FutureOr<void> _onDeleteUser(DeleteUser event, Emitter<UserState> emit) {
+    try {
+      userRepository.deleteUser(event.id);
+      emit(UserDeleted());
+    } catch (e) {
+      emit(UserError(message: 'Error deleting user: $e'));
+    }
   }
 
   @override

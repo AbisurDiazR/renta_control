@@ -34,3 +34,12 @@ class UpdateProperty extends PropertyEvent{
   @override
   List<Object> get props => [property];
 }
+
+class DeleteProperty extends PropertyEvent{
+  final String propertyId;
+
+  DeleteProperty({ required this.propertyId });
+
+  @override
+  List<Object> get props => [propertyId];
+}

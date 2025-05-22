@@ -61,4 +61,19 @@ class UserRepository {
       throw Exception(e.toString());
     }
   }
+
+  Future<void> deleteUser(String id) async {
+    final url = Uri.parse('$_firebaseUrl/users/$id');
+    try {
+      final response = await http.delete(url);
+
+      if (response.statusCode == 200) {
+        await fetchUsers(); // Refresh the user list
+      } else {
+        throw Exception('Error al eliminar el usuario: ${response.body}');
+      }
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+  }
 }

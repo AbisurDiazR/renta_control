@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:renta_control/data/repositories/property/property_repository.dart';
@@ -52,6 +54,40 @@ class PropertiesPage extends StatelessWidget {
                               ),
                             ),
                           ],
+                        ),
+                        trailing: IconButton(
+                          icon: Icon(Icons.delete),
+                          onPressed: () async {
+                            final confirm = await showDialog<bool>(
+                              context: context,
+                              builder:
+                                  (context) => AlertDialog(
+                                    title: Text('Cofirmar eliminación'),
+                                    content: Text(
+                                      '¿Estas seguro de eliminar esta propiedad?',
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed:
+                                            () => Navigator.pop(context, false),
+                                        child: Text('Cancelar'),
+                                      ),
+                                      TextButton(
+                                        onPressed:
+                                            () => {
+                                              Navigator.pop(context, true),
+                                            },
+                                        child: Text('Eliminar'),
+                                      ),
+                                    ],
+                                  ),
+                            );
+                            if (confirm == true) {
+                              context.read<PropertyBloc>().add(
+                                DeleteProperty(propertyId: property.id!),
+                              );
+                            }
+                          },
                         ),
                         onTap: () {
                           Navigator.push(

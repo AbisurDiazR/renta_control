@@ -35,7 +35,6 @@ class _AddUserPageState extends State<AddUserPage> {
     }
 
     if (widget.user != null) {
-      print(widget.user!.toMap());
       _controllers['email']?.text = widget.user!.email;
       _controllers['name']?.text = widget.user!.name;
       _controllers['password']?.text = widget.user!.password;

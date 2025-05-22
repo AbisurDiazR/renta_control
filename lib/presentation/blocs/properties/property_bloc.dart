@@ -14,6 +14,7 @@ class PropertyBloc extends Bloc<PropertyEvent, PropertyState> {
     on<PropertiesUpdated>(_onPropertiesUpdated);
     on<AddProperty>(_onAddProperty);
     on<UpdateProperty>(_onUpdateProperty);
+    on<DeleteProperty>(_onDeleteProperty);
     on<SearchProperties>(_onSearchProperties);
   }
 
@@ -97,6 +98,25 @@ class PropertyBloc extends Bloc<PropertyEvent, PropertyState> {
                 property.zipCode.contains(query);
           }).toList();
       emit(PropertyLoaded(properties: filteredProperties));
+    }
+  }
+
+  Future<void> _onDeleteProperty(
+    DeleteProperty event,
+    Emitter<PropertyState> emit,
+  ) async {
+    try {
+      await repository.deleteProperty(event.propertyId);
+      if (state is PropertyDeleted) {
+        final currentState = state as PropertyDeleted;
+        final updatedProperties =
+            currentState.properties
+                .where((property) => property.id != event.propertyId)
+                .toList();
+        emit(PropertyDeleted(properties: updatedProperties));
+      }
+    } catch (e) {
+      emit(PropertyError(message: 'Error al eliminar la propiedad: $e'));
     }
   }
 
