@@ -24,8 +24,16 @@ class OwnerRepository {
   Stream<List<OwnerModel>> fetchOwners() {
     return _ownersCollection.snapshots().map((querySnapshot) {
       return querySnapshot.docs.map((doc) {
-        return OwnerModel.fromMap(doc.data() as Map<String,dynamic>, doc.id);
+        return OwnerModel.fromMap(doc.data() as Map<String, dynamic>, doc.id);
       }).toList();
     });
+  }
+
+  Future<void> deleteOwner(String ownerId) async {
+    try {
+      await _ownersCollection.doc(ownerId).delete();
+    } catch (e) {
+      throw Exception(e.toString());
+    }
   }
 }

@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:renta_control/data/repositories/owner/owner_repository.dart';
@@ -37,6 +39,7 @@ class OwnerPage extends StatelessWidget {
                     itemBuilder: (context, index) {
                       final owner = state.owners[index];
                       return ListTile(
+                        visualDensity: VisualDensity(vertical: 4),
                         leading: CircleAvatar(
                           child: Text(
                             owner.name.isNotEmpty ? owner.name[0] : '?',
@@ -58,18 +61,69 @@ class OwnerPage extends StatelessWidget {
                             ),
                           ],
                         ),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.arrow_right),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder:
-                                    (_) => OwnerPropertiesList(owner: owner),
+                        trailing: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.remove_red_eye),
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (_) =>
+                                              OwnerPropertiesList(owner: owner),
+                                    ),
+                                  );
+                                },
                               ),
-                            );
-                          },
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.delete,
+                                  color: Colors.red,
+                                ),
+                                onPressed: () async {
+                                  final confirm = await showDialog<bool>(
+                                    context: context,
+                                    builder:
+                                        (context) => AlertDialog(
+                                          title: Text('Confirmar eliminación'),
+                                          content: Text(
+                                            '¿Esta seguro de que desea eliminar este propietario?',
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed:
+                                                  () => Navigator.pop(
+                                                    context,
+                                                    false,
+                                                  ),
+                                              child: Text('Cancelar'),
+                                            ),
+                                            TextButton(
+                                              onPressed:
+                                                  () => Navigator.pop(
+                                                    context,
+                                                    true,
+                                                  ),
+                                              child: Text('Aceptar'),
+                                            ),
+                                          ],
+                                        ),
+                                  );
+                                  if (confirm == true) {
+                                    context.read<OwnerBloc>().add(
+                                      DeleteOwner(ownerId: owner.id!),
+                                    );
+                                  }
+                                },
+                              ),
+                            ],
+                          ),
                         ),
+
                         onTap: () {
                           Navigator.push(
                             context,

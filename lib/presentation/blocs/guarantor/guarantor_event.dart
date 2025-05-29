@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:renta_control/domain/models/guarantor/guarantor.dart';
 
-abstract class GuarantorEvent extends Equatable{
+abstract class GuarantorEvent extends Equatable {
   @override
   List<Object?> get props => [];
 }
@@ -42,4 +42,13 @@ class GuarantorsUpdated extends GuarantorEvent {
 
   @override
   List<Object> get props => [guarantors];
+}
+
+class DeleteGuarantor extends GuarantorEvent {
+  final String guarantorId;
+
+  DeleteGuarantor({required this.guarantorId});
+
+  @override
+  List<Object> get props => [guarantorId];
 }

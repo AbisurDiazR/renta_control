@@ -34,3 +34,12 @@ class UpdateOwner extends OwnerEvent {
   @override
   List<Object> get props => [owner];
 }
+
+class DeleteOwner extends OwnerEvent{
+  final String ownerId;
+
+  DeleteOwner({ required this.ownerId });
+
+  @override
+  List<Object> get props => [ownerId];
+}

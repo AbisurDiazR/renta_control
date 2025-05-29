@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:renta_control/data/repositories/guarantor/guarantor_repository.dart';
@@ -37,24 +39,64 @@ class GuarantorsPage extends StatelessWidget {
                         return ListTile(
                           leading: CircleAvatar(
                             child: Text(
-                              guarantor.fullName.isNotEmpty ? guarantor.fullName[0] : '?',
+                              guarantor.fullName.isNotEmpty
+                                  ? guarantor.fullName[0]
+                                  : '?',
                             ),
                           ),
                           title: Text(guarantor.fullName),
-                            subtitle: Column(
+                          subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text('Email: ${guarantor.email}'),
                               Text('Teléfono: ${guarantor.phoneNumber}'),
-                              Text('Dirección: ${guarantor.street} ${guarantor.extNumber}, ${guarantor.neighborhood}'),
+                              Text(
+                                'Dirección: ${guarantor.street} ${guarantor.extNumber}, ${guarantor.neighborhood}',
+                              ),
                             ],
-                            ),
+                          ),
+                          trailing: IconButton(
+                            icon: Icon(Icons.delete),
+                            onPressed: () async {
+                              final confirm = await showDialog<bool>(
+                                context: context,
+                                builder:
+                                    (context) => AlertDialog(
+                                      title: Text('Confirmar eliminación'),
+                                      content: Text(
+                                        '¿Esta seguro de que desea eliminar este fiador?',
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed:
+                                              () =>
+                                                  Navigator.pop(context, false),
+                                          child: Text('Cancelar'),
+                                        ),
+                                        TextButton(
+                                          onPressed:
+                                              () =>
+                                                  Navigator.pop(context, true),
+                                          child: Text('Aceptar'),
+                                        ),
+                                      ],
+                                    ),
+                              );
+                              if (confirm == true) {
+                                context.read<GuarantorBloc>().add(
+                                  DeleteGuarantor(guarantorId: guarantor.id),
+                                );
+                              }
+                            },
+                          ),
                           onTap: () {
                             // Navigate to the guarantor details page
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => AddGuarantorPage(guarantor: guarantor,),
+                                builder:
+                                    (context) =>
+                                        AddGuarantorPage(guarantor: guarantor),
                               ),
                             );
                           },

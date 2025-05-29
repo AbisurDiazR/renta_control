@@ -15,6 +15,7 @@ class GuarantorBloc extends Bloc<GuarantorEvent, GuarantorState> {
     on<GuarantorsUpdated>(_onGuarantorsUpdated);
     on<AddGuarantor>(_onAddGuarantor);
     on<UpdateGuarantor>(_onUpdateGuarantor);
+    on<DeleteGuarantor>(_onDeleteGuarantor);
     on<SearchGuarantors>(_onSearchGuarantors);
   }
 
@@ -76,6 +77,25 @@ class GuarantorBloc extends Bloc<GuarantorEvent, GuarantorState> {
               guarantor.email.toLowerCase().contains(query);
         }).toList();
     emit(GuarantorLoaded(guarantors: filteredGuarantors));
+  }
+
+  FutureOr<void> _onDeleteGuarantor(
+    DeleteGuarantor event,
+    Emitter<GuarantorState> emit,
+  ) async {
+    try {
+      await repository.deleteGuarantor(event.guarantorId);
+      if (state is GuarantorDeleted) {
+        final currentState = state as GuarantorDeleted;
+        final updatedGuarantors =
+            currentState.guarantors
+                .where((guarantor) => guarantor.id != event.guarantorId)
+                .toList();
+        emit(GuarantorDeleted(guarantors: updatedGuarantors));
+      }
+    } catch (e) {
+      emit(GuarantorError(message: 'Error al eliminar al fiador: $e'));
+    }
   }
 
   @override

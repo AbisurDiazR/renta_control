@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:renta_control/data/repositories/tenant/tenant_repository.dart';
@@ -50,6 +52,40 @@ class TenantsPage extends StatelessWidget {
                                 'Dirección: ${tenant.street} ${tenant.extNumber}, ${tenant.neighborhood}',
                               ),
                             ],
+                          ),
+                          trailing: IconButton(
+                            icon: Icon(Icons.delete),
+                            onPressed: () async {
+                              final confirm = await showDialog<bool>(
+                                context: context,
+                                builder:
+                                    (context) => AlertDialog(
+                                      title: Text('Confirmar eliminación'),
+                                      content: Text(
+                                        '¿Esta seguro de que desea eliminar este inquilino?',
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed:
+                                              () =>
+                                                  Navigator.pop(context, false),
+                                          child: Text('Cancelar'),
+                                        ),
+                                        TextButton(
+                                          onPressed:
+                                              () =>
+                                                  Navigator.pop(context, true),
+                                          child: Text('Aceptar'),
+                                        ),
+                                      ],
+                                    ),
+                              );
+                              if (confirm == true) {
+                                context.read<TenantBloc>().add(
+                                  DeleteTenant(tenantId: tenant.id!),
+                                );
+                              }
+                            },
                           ),
                           onTap: () {
                             Navigator.push(

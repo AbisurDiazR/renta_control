@@ -31,3 +31,12 @@ class GuarantorError extends GuarantorState {
 class GuarantorUpdated extends GuarantorState {}
 
 class GuarantorAdded extends GuarantorState {}
+
+class GuarantorDeleted extends GuarantorState {
+  final List<Guarantor> guarantors;
+
+  GuarantorDeleted({required this.guarantors});
+
+  @override
+  List<Object> get props => [guarantors];
+}

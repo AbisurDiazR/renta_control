@@ -1,5 +1,3 @@
-
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:renta_control/domain/models/guarantor/guarantor.dart';
 
@@ -8,10 +6,10 @@ class GuarantorRepository {
       .collection("guarantors");
 
   // Fetch all guarantors
-  Stream<List<Guarantor>> fetchGuarantors(){
+  Stream<List<Guarantor>> fetchGuarantors() {
     return _guarantorsCollection.snapshots().map((querySnapshot) {
       return querySnapshot.docs.map((doc) {
-        return Guarantor.fromMap(doc.data() as Map<String,dynamic>, doc.id);
+        return Guarantor.fromMap(doc.data() as Map<String, dynamic>, doc.id);
       }).toList();
     });
   }
@@ -21,14 +19,24 @@ class GuarantorRepository {
     try {
       await _guarantorsCollection.add(guarantor.toMap());
     } catch (e) {
-      throw Exception(e.toString());      
+      throw Exception(e.toString());
     }
   }
 
   // Update an existing guarantor
   Future<void> updateGuarantor(Guarantor updatedGuarantor) async {
     try {
-      await _guarantorsCollection.doc(updatedGuarantor.id).update(updatedGuarantor.toMap());
+      await _guarantorsCollection
+          .doc(updatedGuarantor.id)
+          .update(updatedGuarantor.toMap());
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+  }
+
+  Future<void> deleteGuarantor(String guarantorId) async {
+    try {
+      await _guarantorsCollection.doc(guarantorId).delete();
     } catch (e) {
       throw Exception(e.toString());
     }

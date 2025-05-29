@@ -43,3 +43,12 @@ class TenantsUpdated extends TenantEvent {
   @override
   List<Object> get props => [tenants];
 }
+
+class DeleteTenant extends TenantEvent {
+  final String tenantId;
+
+  DeleteTenant({required this.tenantId});
+
+  @override
+  List<Object> get props => [tenantId];
+}

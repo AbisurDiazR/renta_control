@@ -15,6 +15,7 @@ class TenantBloc extends Bloc<TenantEvent, TenantState> {
     on<TenantsUpdated>(_onTenantsUpdated);
     on<AddTenant>(_onAddTenant);
     on<UpdateTenant>(_onUpdateTenant);
+    on<DeleteTenant>(_onDeleteTenant);
     on<SearchTenants>(_onSearchTenants);
   }
 
@@ -74,6 +75,25 @@ class TenantBloc extends Bloc<TenantEvent, TenantState> {
               tenant.zipCode.contains(query);
         }).toList();
     emit(TenantLoaded(tenants: filteredTenants));
+  }
+
+  FutureOr<void> _onDeleteTenant(
+    DeleteTenant event,
+    Emitter<TenantState> emit,
+  ) async {
+    try {
+      await repository.deleteTenant(event.tenantId);
+      if (state is TenantDeleted) {
+        final currentState = state as TenantDeleted;
+        final updatedTenants =
+            currentState.tenants
+                .where((tenant) => tenant.id != event.tenantId)
+                .toList();
+        emit(TenantDeleted(tenants: updatedTenants));
+      }
+    } catch (e) {
+      emit(TenantError(message: 'Error al eliminar el inquilino: $e'));
+    }
   }
 
   @override

@@ -15,6 +15,7 @@ class OwnerBloc extends Bloc<OwnerEvent, OwnerState> {
     on<OwnersUpdated>(_onOwnersUpdated);
     on<AddOwner>(_onAddOwner);
     on<UpdateOwner>(_onUpdateOwner);
+    on<DeleteOwner>(_onDeleteOwner);
     on<SearchOwners>(_onSearchOwners);
   }
 
@@ -82,6 +83,25 @@ class OwnerBloc extends Bloc<OwnerEvent, OwnerState> {
                 owner.zipCode.contains(query);
           }).toList();
       emit(OwnerLoaded(owners: filteredOwners));
+    }
+  }
+
+  FutureOr<void> _onDeleteOwner(
+    DeleteOwner event,
+    Emitter<OwnerState> emit,
+  ) async {
+    try {
+      await repository.deleteOwner(event.ownerId);
+      if (state is OwnerDeleted) {
+        final currentState = state as OwnerDeleted;
+        final updatedOwners =
+            currentState.owners
+                .where((owner) => owner.id != event.ownerId)
+                .toList();
+        emit(OwnerDeleted(owners: updatedOwners));
+      }
+    } catch (e) {
+      emit(OwnerError(message: 'Error al eliminar al propietario: $e'));
     }
   }
 

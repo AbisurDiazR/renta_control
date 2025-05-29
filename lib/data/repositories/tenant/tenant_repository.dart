@@ -9,11 +9,11 @@ class TenantRepository {
     try {
       await _tenantsCollection.add(tenant.toMap());
     } catch (e) {
-      throw Exception(e.toString());      
+      throw Exception(e.toString());
     }
   }
 
-  Future<void> updateTenant(Tenant tenant) async {    
+  Future<void> updateTenant(Tenant tenant) async {
     try {
       await _tenantsCollection.doc(tenant.id).update(tenant.toMap());
     } catch (e) {
@@ -21,11 +21,19 @@ class TenantRepository {
     }
   }
 
-  Stream<List<Tenant>> fetchTenants(){
+  Stream<List<Tenant>> fetchTenants() {
     return _tenantsCollection.snapshots().map((querySnapshot) {
       return querySnapshot.docs.map((doc) {
-        return Tenant.fromMap(doc.data() as Map<String,dynamic>, doc.id);
+        return Tenant.fromMap(doc.data() as Map<String, dynamic>, doc.id);
       }).toList();
     });
+  }
+
+  Future<void> deleteTenant(String tenantId) async {
+    try {
+      await _tenantsCollection.doc(tenantId).delete();
+    } catch (e) {
+      throw Exception(e.toString());
+    }
   }
 }
