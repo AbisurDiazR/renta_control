@@ -13,6 +13,8 @@ import 'package:renta_control/presentation/pages/properties/add_property_page.da
 import 'package:renta_control/presentation/pages/contracts/contracts_page.dart';
 import 'package:renta_control/presentation/pages/invoices/invoices_page.dart';
 import 'package:renta_control/presentation/pages/properties/properties_page.dart';
+import 'package:renta_control/presentation/pages/representatives/add_representative_page.dart';
+import 'package:renta_control/presentation/pages/representatives/representatives_page.dart';
 import 'package:renta_control/presentation/pages/tenants/add_tenant.dart';
 import 'package:renta_control/presentation/pages/tenants/tenants_page.dart';
 import 'package:renta_control/presentation/pages/users/add_user.dart';
@@ -37,6 +39,7 @@ class _HomePageState extends State<HomePage> {
     OwnerPage(),
     TenantsPage(),
     GuarantorsPage(),
+    RepresentativesPage(),
   ];
 
   //Metodo para actualizar el indice seleccionado
@@ -96,6 +99,11 @@ class _HomePageState extends State<HomePage> {
               leading: Icon(Icons.person_add),
               title: Text('Fiadores'),
               onTap: () => _onItemTapped(6),
+            ),
+            ListTile(
+              leading: Icon(Icons.gavel),
+              title: Text('Representates'),
+              onTap: () => _onItemTapped(7),
             ),
             Divider(height: 50),
             ListTile(
@@ -180,6 +188,18 @@ class _HomePageState extends State<HomePage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => CreateInvoicePage()),
+              );
+            },
+          ),
+          SpeedDialChild(
+            child: Icon(Icons.gavel),
+            label: 'Registrar representante',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AddRepresentativePage(),
+                ),
               );
             },
           ),

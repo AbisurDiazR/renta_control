@@ -10,6 +10,7 @@ import 'package:renta_control/data/repositories/guarantor/guarantor_repository.d
 import 'package:renta_control/data/repositories/invoice/invoice_repository.dart';
 import 'package:renta_control/data/repositories/owner/owner_repository.dart';
 import 'package:renta_control/data/repositories/property/property_repository.dart';
+import 'package:renta_control/data/repositories/representative/representative_repository.dart';
 import 'package:renta_control/data/repositories/tenant/tenant_repository.dart';
 import 'package:renta_control/data/repositories/users/user_repository.dart';
 import 'package:renta_control/firebase_options.dart';
@@ -21,6 +22,7 @@ import 'package:renta_control/presentation/blocs/guarantor/guarantor_bloc.dart';
 import 'package:renta_control/presentation/blocs/invoices/invoice_bloc.dart';
 import 'package:renta_control/presentation/blocs/owners/owner_bloc.dart';
 import 'package:renta_control/presentation/blocs/properties/property_bloc.dart';
+import 'package:renta_control/presentation/blocs/representative/representative_bloc.dart';
 import 'package:renta_control/presentation/blocs/tenant/tenant_bloc.dart';
 import 'package:renta_control/presentation/blocs/user/user_bloc.dart';
 import 'package:renta_control/presentation/pages/home_page.dart';
@@ -42,6 +44,9 @@ void setupLocator() {
   getIt.registerLazySingleton<TenantRepository>(() => TenantRepository());
   getIt.registerLazySingleton<GuarantorRepository>(() => GuarantorRepository());
   getIt.registerLazySingleton<UserRepository>(() => UserRepository());
+  getIt.registerLazySingleton<RepresentativeRepository>(
+    () => RepresentativeRepository(),
+  );
 }
 
 void main() async {
@@ -76,6 +81,7 @@ class MyApp extends StatelessWidget {
         RepositoryProvider(create: (_) => getIt<TenantRepository>()),
         RepositoryProvider(create: (_) => getIt<GuarantorRepository>()),
         RepositoryProvider(create: (_) => getIt<UserRepository>()),
+        RepositoryProvider(create: (_) => getIt<RepresentativeRepository>()),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -122,6 +128,12 @@ class MyApp extends StatelessWidget {
             create:
                 (context) =>
                     UserBloc(userRepository: context.read<UserRepository>()),
+          ),
+          BlocProvider(
+            create:
+                (context) => RepresentativeBloc(
+                  repository: context.read<RepresentativeRepository>(),
+                ),
           ),
         ],
         child: MaterialApp(
