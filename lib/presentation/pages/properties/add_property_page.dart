@@ -1,4 +1,4 @@
-// ignore_for_file: library_private_types_in_public_api
+// ignore_for_file: library_private_types_in_public_api, cast_from_null_always_fails, unnecessary_null_comparison, duplicate_ignore
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -65,14 +65,12 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
       _controllers['city']!.text = propertyObject!.city;
       _controllers['state']!.text = propertyObject!.state;
       _controllers['zipCode']!.text = propertyObject!.zipCode;
-      _controllers['notes']!.text =
-          propertyObject!.notes;
+      _controllers['notes']!.text = propertyObject!.notes;
     }
   }
 
   void _submitForm() {
     if (_formKey.currentState!.validate() && _selectedOwner != null) {
-
       final Property newProperty = Property(
         name: _controllers['name']!.text,
         street: _controllers['street']!.text,
@@ -176,10 +174,10 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
   Widget _buildTextField(String field, {required bool isRequired}) {
     TextInputType keyboardType = TextInputType.text;
     List<TextInputFormatter>? inputFormatters;
-    
-    if(field == 'zipCode'){
+
+    if (field == 'zipCode') {
       keyboardType = TextInputType.number;
-    } else if(field == 'price'){
+    } else if (field == 'price') {
       keyboardType = TextInputType.numberWithOptions(decimal: true);
       inputFormatters = [
         FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
@@ -227,6 +225,25 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
         if (state is OwnerLoading) {
           return Center(child: CircularProgressIndicator());
         } else if (state is OwnerLoaded) {
+          WidgetsBinding.instance.addPostFrameCallback((_){
+            if (_selectedOwner != null) {
+              final foundOwner = state.owners.firstWhere(
+                (o) => o.id == _selectedOwner!.id,
+                orElse: () => null as OwnerModel
+              );
+
+              // ignore: unnecessary_null_comparison
+              if (foundOwner != null && foundOwner != _selectedOwner) {
+                setState(() {
+                  _selectedOwner = foundOwner;
+                });                
+              } else if(foundOwner == null && _selectedOwner == null){
+                setState(() {
+                  _selectedOwner = null;
+                });
+              }
+            }
+          });
           return Row(
             children: [
               Expanded(
@@ -246,7 +263,7 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
                       }).toList(),
                   decoration: InputDecoration(
                     labelText: 'Seleccione propietario',
-                    border: OutlineInputBorder()
+                    border: OutlineInputBorder(),
                   ),
                   validator:
                       (value) =>

@@ -1,3 +1,5 @@
+// ignore_for_file: depend_on_referenced_packages
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -30,6 +32,7 @@ import 'package:renta_control/presentation/pages/login_page.dart';
 import 'package:renta_control/presentation/pages/splash_page.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 //Configuración de la instancia de inyección de dependencias
 final getIt = GetIt.instance;
@@ -139,6 +142,18 @@ class MyApp extends StatelessWidget {
         child: MaterialApp(
           title: 'Renta Control',
           theme: ThemeData(primarySwatch: Colors.blue),
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations
+                .delegate, // Proporciona textos y formatos de Material Design
+            GlobalWidgetsLocalizations
+                .delegate, // Proporciona textos genéricos de widgets
+            GlobalCupertinoLocalizations
+                .delegate, // Proporciona textos de Cupertino (iOS) si los usas
+          ],
+          supportedLocales: const [
+            Locale('en', ''), // Soporte para inglés (idioma por defecto)
+            Locale('es', ''), // Soporte para español
+          ],
           initialRoute: '/',
           routes: {
             '/': (context) => SplashPage(),

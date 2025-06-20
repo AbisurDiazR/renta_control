@@ -4,7 +4,7 @@ import 'package:renta_control/domain/models/representative/representative.dart';
 class RepresentativeRepository {
   final CollectionReference _representativesCollection = FirebaseFirestore
       .instance
-      .collection("Representatives");
+      .collection("representatives");
 
   Future<void> addRepresentative(Representative representative) async {
     try {

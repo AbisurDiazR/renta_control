@@ -46,7 +46,7 @@ class GuarantorBloc extends Bloc<GuarantorEvent, GuarantorState> {
   ) async {
     try {
       await repository.addGuarantor(event.guarantor);
-      emit(GuarantorAdded());
+      //emit(GuarantorAdded());
     } catch (e) {
       emit(GuarantorError(message: 'Error al agregar garante: $e'));
     }
@@ -58,7 +58,7 @@ class GuarantorBloc extends Bloc<GuarantorEvent, GuarantorState> {
   ) async {
     try {
       await repository.updateGuarantor(event.guarantor);
-      emit(GuarantorUpdated());
+      //emit(GuarantorUpdated());
     } catch (e) {
       emit(GuarantorError(message: 'Error al actualizar garante: $e'));
     }

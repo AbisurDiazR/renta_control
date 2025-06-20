@@ -208,7 +208,7 @@ class _AddGuarantorPageState extends State<AddGuarantorPage> {
               guarantor: newGuarantor.copyWith(id: _guarantor!.id),
             ),
       );
-      Navigator.pop(context, newGuarantor);
+      Navigator.pop(context);
     }
   }
 
