@@ -14,6 +14,23 @@ class Property {
   final String? status;
   final String? ownerName;
 
+  // Nuevos campos para la propiedad detallada (Parrafo 1.b)
+  final double? landArea; // Superficie del terreno en metros cuadrados
+  final double? constructionArea; // **CORREGIDO: 'constructionArea' con 's'**
+
+  // Nuevos campos para la escritura y registro
+  final String? deedNumber; // Número de escritura
+  final String? deedVolume; // Volumen de escritura
+  final String? notaryName; // Nombre del notario
+  final String? notaryNumber; // Número de notaria
+  final String? notaryCity; // Ciudad donde se otorgó la notaría
+  final String? notaryState; // Estado donde se otorgó la notaría
+  final DateTime? registrationDate; // **CORREGIDO: Tipo DateTime?**
+  final String? registrationNumber; // Número de registro de la propiedad
+  final String? registrationFolio; // Foja de regigstro RPPC
+  final String? registrationVolume; // Volumen de registro RPPC
+  final String? registrationSection; // Sección de registro RPPC
+
   Property({
     this.id,
     required this.name,
@@ -26,15 +43,29 @@ class Property {
     required this.state,
     required this.zipCode,
     required this.notes,
-    required this.ownerId,
+    required this.ownerId, // Si es required, considera si siempre lo tendrás al crear.
     this.status,
     this.ownerName,
+    this.landArea,
+    this.constructionArea, // **CORREGIDO: 'constructionArea'**
+    this.deedNumber,
+    this.deedVolume,
+    this.notaryName,
+    this.notaryNumber,
+    this.notaryCity,
+    this.notaryState,
+    this.registrationDate,
+    this.registrationNumber,
+    this.registrationFolio,
+    this.registrationVolume,
+    this.registrationSection,
   });
 
   Property copyWith({
     String? id,
     String? name,
-    String? unitNumber,
+    String?
+    unitNumber, // Este campo parece no estar en la clase, revisar si es necesario
     String? street,
     String? extNumber,
     String? intNumber,
@@ -47,9 +78,19 @@ class Property {
     String? ownerId,
     String? status,
     String? ownerName,
-    String? productKey, // e.g., '80131500'
-    String? unitKey, // e.g., 'E48'
-    double? price, // e.g., 10000.00
+    double? landArea,
+    double? constructionArea, // **CORREGIDO: 'constructionArea'**
+    String? deedNumber,
+    String? deedVolume,
+    String? notaryName,
+    String? notaryNumber,
+    String? notaryCity,
+    String? notaryState,
+    DateTime? registrationDate, // **CORREGIDO: Tipo DateTime?**
+    String? registrationNumber,
+    String? registrationFolio,
+    String? registrationVolume,
+    String? registrationSection,
   }) {
     return Property(
       id: id ?? this.id,
@@ -66,6 +107,21 @@ class Property {
       ownerId: ownerId ?? this.ownerId,
       status: status ?? this.status,
       ownerName: ownerName ?? this.ownerName,
+      landArea: landArea ?? this.landArea,
+      constructionArea:
+          constructionArea ?? this.constructionArea, // **CORREGIDO**
+      deedNumber: deedNumber ?? this.deedNumber,
+      deedVolume: deedVolume ?? this.deedVolume,
+      notaryName: notaryName ?? this.notaryName,
+      notaryNumber: notaryNumber ?? this.notaryNumber,
+      notaryCity: notaryCity ?? this.notaryCity,
+      notaryState: notaryState ?? this.notaryState,
+      registrationDate:
+          registrationDate ?? this.registrationDate, // **CORREGIDO**
+      registrationNumber: registrationNumber ?? this.registrationNumber,
+      registrationFolio: registrationFolio ?? this.registrationFolio,
+      registrationVolume: registrationVolume ?? this.registrationVolume,
+      registrationSection: registrationSection ?? this.registrationSection,
     );
   }
 
@@ -75,7 +131,7 @@ class Property {
       'name': name,
       'street': street,
       'extNumber': extNumber,
-      'intNumber': intNumber, // Puede ser null
+      'intNumber': intNumber,
       'neighborhood': neighborhood,
       'borough': borough,
       'city': city,
@@ -85,6 +141,21 @@ class Property {
       'ownerId': ownerId,
       'status': status,
       'ownerName': ownerName,
+      'landArea': landArea,
+      'constructionArea': constructionArea, // **CORREGIDO: 'constructionArea'**
+      'deedNumber': deedNumber,
+      'deedVolume': deedVolume,
+      'notaryName': notaryName,
+      'notaryNumber': notaryNumber,
+      'notaryCity': notaryCity,
+      'notaryState': notaryState,
+      'registrationDate':
+          registrationDate
+              ?.toIso8601String(), // **CORREGIDO: Convertir a String**
+      'registrationNumber': registrationNumber,
+      'registrationFolio': registrationFolio,
+      'registrationVolume': registrationVolume,
+      'registrationSection': registrationSection,
     };
   }
 
@@ -104,6 +175,27 @@ class Property {
       ownerId: map['ownerId'],
       status: map['status'],
       ownerName: map['ownerName'],
+      landArea:
+          (map['landArea'] as num?)?.toDouble(), // **CORREGIDO: Casteo seguro**
+      constructionArea:
+          (map['constructionArea'] as num?)
+              ?.toDouble(), // **CORREGIDO: Ortografía y casteo seguro**
+      deedNumber: map['deedNumber'],
+      deedVolume: map['deedVolume'],
+      notaryName: map['notaryName'],
+      notaryNumber: map['notaryNumber'],
+      notaryCity: map['notaryCity'],
+      notaryState: map['notaryState'],
+      registrationDate:
+          map['registrationDate'] != null
+              ? DateTime.parse(
+                map['registrationDate'] as String,
+              ) // **CORREGIDO: Parsear a DateTime**
+              : null,
+      registrationNumber: map['registrationNumber'],
+      registrationFolio: map['registrationFolio'],
+      registrationVolume: map['registrationVolume'],
+      registrationSection: map['registrationSection'],
     );
   }
 }

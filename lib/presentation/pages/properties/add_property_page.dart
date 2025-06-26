@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:renta_control/domain/models/owner/owner_model.dart';
 import 'package:renta_control/domain/models/property/property.dart';
 import 'package:renta_control/presentation/blocs/owners/owner_bloc.dart';
@@ -24,6 +25,8 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
   final Map<String, TextEditingController> _controllers = {};
   Property? propertyObject;
   OwnerModel? _selectedOwner;
+
+  DateTime? _selectedRegistrationDate;
 
   @override
   void initState() {
@@ -49,6 +52,19 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
       'state',
       'zipCode',
       'notes',
+      'landArea',
+      'contructionArea',
+      'deedNumber',
+      'deedVolume',
+      'notaryName',
+      'notaryNumber',
+      'notaryCity',
+      'notaryState',
+      'registrationDate',
+      'registrationNumber',
+      'registrationFolio',
+      'registrationVolume',
+      'registrationSection',
     ];
 
     for (var field in fields) {
@@ -66,6 +82,38 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
       _controllers['state']!.text = propertyObject!.state;
       _controllers['zipCode']!.text = propertyObject!.zipCode;
       _controllers['notes']!.text = propertyObject!.notes;
+      _controllers['landArea']!.text = propertyObject!.landArea.toString();
+      _controllers['contructionArea']!.text =
+          propertyObject!.constructionArea.toString();
+      _controllers['deedNumber']!.text = propertyObject!.deedNumber ?? '';
+      _controllers['deedVolume']!.text = propertyObject!.deedVolume ?? '';
+      _controllers['notaryName']!.text = propertyObject!.notaryName ?? '';
+      _controllers['notaryNumber']!.text = propertyObject!.notaryNumber ?? '';
+      _controllers['notaryCity']!.text = propertyObject!.notaryCity ?? '';
+      _controllers['notaryState']!.text = propertyObject!.notaryState ?? '';
+      _controllers['registrationDate']!.text =
+          propertyObject!.registrationDate != null
+              ? propertyObject!.registrationDate.toString()
+              : '';
+      _controllers['registrationNumber']!.text =
+          propertyObject!.registrationNumber ?? '';
+      _controllers['registrationFolio']!.text =
+          propertyObject!.registrationFolio ?? '';
+      _controllers['registrationVolume']!.text =
+          propertyObject!.registrationVolume ?? '';
+      _controllers['registrationSection']!.text =
+          propertyObject!.registrationSection ?? '';
+      _selectedOwner =
+          propertyObject!.ownerId != null
+              ? BlocProvider.of<OwnerBloc>(context).state is OwnerLoaded
+                  ? (BlocProvider.of<OwnerBloc>(context).state as OwnerLoaded)
+                      .owners
+                      .firstWhere(
+                        (owner) => owner.id == propertyObject!.ownerId,
+                        orElse: () => null as OwnerModel,
+                      )
+                  : null
+              : null;
     }
   }
 
@@ -86,7 +134,27 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
         zipCode: _controllers['zipCode']!.text,
         notes: _controllers['notes']!.text,
         ownerId: _selectedOwner?.id,
+        ownerName: _selectedOwner?.name,
         status: 'disponible',
+        landArea:
+            _controllers['landArea']!.text.isNotEmpty
+                ? double.tryParse(_controllers['landArea']!.text) ?? 0.0
+                : 0.0,
+        constructionArea:
+            _controllers['contructionArea']!.text.isNotEmpty
+                ? double.tryParse(_controllers['contructionArea']!.text) ?? 0.0
+                : 0.0,
+        deedNumber: _controllers['deedNumber']!.text,
+        deedVolume: _controllers['deedVolume']!.text,
+        notaryName: _controllers['notaryName']!.text,
+        notaryNumber: _controllers['notaryNumber']!.text,
+        notaryCity: _controllers['notaryCity']!.text,
+        notaryState: _controllers['notaryState']!.text,
+        registrationDate: _selectedRegistrationDate,
+        registrationNumber: _controllers['registrationNumber']!.text,
+        registrationFolio: _controllers['registrationFolio']!.text,
+        registrationVolume: _controllers['registrationVolume']!.text,
+        registrationSection: _controllers['registrationSection']!.text,
       );
       BlocProvider.of<PropertyBloc>(context).add(
         propertyObject == null
@@ -106,6 +174,19 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
                 ownerId: _selectedOwner?.id,
                 status: newProperty.status,
                 ownerName: _selectedOwner?.name,
+                landArea: newProperty.landArea,
+                constructionArea: newProperty.constructionArea,
+                deedNumber: newProperty.deedNumber,
+                deedVolume: newProperty.deedVolume,
+                notaryName: newProperty.notaryName,
+                notaryNumber: newProperty.notaryNumber,
+                notaryCity: newProperty.notaryCity,
+                notaryState: newProperty.notaryState,
+                registrationDate: newProperty.registrationDate,
+                registrationNumber: newProperty.registrationNumber,
+                registrationFolio: newProperty.registrationFolio,
+                registrationVolume: newProperty.registrationVolume,
+                registrationSection: newProperty.registrationSection,
               ),
             ),
       );
@@ -174,14 +255,22 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
   Widget _buildTextField(String field, {required bool isRequired}) {
     TextInputType keyboardType = TextInputType.text;
     List<TextInputFormatter>? inputFormatters;
+    bool readOnly = false;
+    bool onTapAction = false;
 
-    if (field == 'zipCode') {
+    if (field == 'zipCode' ||
+        field == 'landArea' ||
+        field == 'contructionArea') {
       keyboardType = TextInputType.number;
     } else if (field == 'price') {
       keyboardType = TextInputType.numberWithOptions(decimal: true);
       inputFormatters = [
         FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
       ];
+    } else if (field == 'registrationDate') {
+      keyboardType = TextInputType.datetime;
+      readOnly = true;
+      onTapAction = true;
     }
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -199,8 +288,47 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
         },
         keyboardType: keyboardType,
         inputFormatters: inputFormatters,
+        readOnly: readOnly,
+        onTap:
+            onTapAction // Si onTapAction es true, esto debería ser una función directamente
+                ? () => _selectDate(
+                  context,
+                  _controllers[field]!, // Asegúrate de que no sea null si estás aquí
+                  onDateTimeSelected: (date) {
+                    setState(() {
+                      _selectedRegistrationDate = date;
+                    });
+                  },
+                )
+                : null,
       ),
     );
+  }
+
+  // Método para seleccionar la fecha
+  Future<void> _selectDate(
+    BuildContext context,
+    TextEditingController controller, { // Ya no es nullable aquí
+    required Function(DateTime)
+    onDateTimeSelected, // Callback para actualizar la fecha
+  }) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate:
+          DateTime.now(), // Podrías usar selectedDate ?? DateTime.now() si tuvieras un initialDate para el picker
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+      helpText: 'Selecciona una fecha',
+      fieldLabelText: 'Fecha de inscripción',
+      locale: const Locale('es', 'MX'), // Usa const
+    );
+    if (picked != null) {
+      // Quita && controller != null, ya lo pasas como no nulo
+      onDateTimeSelected(
+        picked,
+      ); // Llama al callback para actualizar la variable de estado
+      controller.text = DateFormat('dd/MM/yyyy').format(picked);
+    }
   }
 
   String _getLabelText(String field) {
@@ -215,6 +343,19 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
       'state': 'Estado',
       'zipCode': 'Código Postal',
       'notes': 'Comentarios',
+      'landArea': 'Superficie del terreno (m²)',
+      'contructionArea': 'Superficie de construcción (m²)',
+      'deedNumber': 'Número de escritura',
+      'deedVolume': 'Volumen de escritura',
+      'notaryName': 'Nombre del notario',
+      'notaryNumber': 'Número de notaría',
+      'notaryCity': 'Ciudad de la notaría',
+      'notaryState': 'Estado de la notaría',
+      'registrationDate': 'Fecha de inscripción en el RPPC',
+      'registrationNumber': 'Número de registro de la propiedad',
+      'registrationFolio': 'Foja de registro RPPC',
+      'registrationVolume': 'Volumen de registro RPPC',
+      'registrationSection': 'Sección de registro RPPC',
     };
     return labels[field] ?? field;
   }
@@ -225,19 +366,19 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
         if (state is OwnerLoading) {
           return Center(child: CircularProgressIndicator());
         } else if (state is OwnerLoaded) {
-          WidgetsBinding.instance.addPostFrameCallback((_){
+          WidgetsBinding.instance.addPostFrameCallback((_) {
             if (_selectedOwner != null) {
               final foundOwner = state.owners.firstWhere(
                 (o) => o.id == _selectedOwner!.id,
-                orElse: () => null as OwnerModel
+                orElse: () => null as OwnerModel,
               );
 
               // ignore: unnecessary_null_comparison
               if (foundOwner != null && foundOwner != _selectedOwner) {
                 setState(() {
                   _selectedOwner = foundOwner;
-                });                
-              } else if(foundOwner == null && _selectedOwner == null){
+                });
+              } else if (foundOwner == null && _selectedOwner == null) {
                 setState(() {
                   _selectedOwner = null;
                 });

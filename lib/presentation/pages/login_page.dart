@@ -40,6 +40,7 @@ class LoginPage extends StatelessWidget {
               child: TextField(
                 decoration: InputDecoration(labelText: "Correo Electronico"),
                 controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
               ),
             ),
 
@@ -52,6 +53,7 @@ class LoginPage extends StatelessWidget {
                 decoration: InputDecoration(labelText: "Contraseña"),
                 obscureText: true,
                 controller: _passwordController,
+                keyboardType: TextInputType.visiblePassword,
               ),
             ),
 

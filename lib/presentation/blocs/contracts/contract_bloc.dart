@@ -22,15 +22,7 @@ class ContractBloc extends Bloc<ContractEvent, ContractState> {
     Emitter<ContractState> emit,
   ) async {
     try {
-      final newContract = Contract(
-        id: event.contract.id,
-        renter: event.contract.renter,
-        contractBody: event.contract.contractBody,
-        property: event.contract.property,
-        ownerEmail: event.contract.ownerEmail,
-        propertyName: event.contract.propertyName
-      );
-      await repository.addContract(newContract);
+      await repository.addContract(event.contract);
     } catch (e) {
       emit(ContractError(message: "Error al crear el contrato: $e"));
     }

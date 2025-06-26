@@ -1,11 +1,11 @@
-// ignore_for_file: unnecessary_null_comparison, library_private_types_in_public_api
-
+// ignore_for_file: unnecessary_null_comparison, library_private_types_in_public_api, use_build_context_synchronously
 import 'dart:convert';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:intl/intl.dart';
 import 'package:renta_control/domain/models/guarantor/guarantor.dart';
 import 'package:renta_control/presentation/blocs/guarantor/guarantor_state.dart';
 import 'package:renta_control/presentation/pages/guarantors/add_guarantor.dart';
@@ -27,12 +27,15 @@ import 'package:renta_control/presentation/blocs/representative/representative_s
 import 'package:renta_control/presentation/blocs/tenant/tenant_bloc.dart';
 import 'package:renta_control/presentation/blocs/tenant/tenant_event.dart';
 import 'package:renta_control/presentation/blocs/tenant/tenant_state.dart';
-import 'package:intl/intl.dart';
+//import 'package:intl/intl.dart';
 import 'package:renta_control/presentation/pages/owners/add_owner_page.dart';
 import 'package:renta_control/presentation/pages/properties/add_property_page.dart';
 import 'package:renta_control/presentation/pages/representatives/add_representative_page.dart';
 import 'package:renta_control/presentation/pages/tenants/add_tenant.dart';
 import 'package:http/http.dart' as http;
+import 'package:renta_control/utils/date_picker_helper.dart';
+import 'package:renta_control/utils/number_to_words_converter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class CreateContractPage extends StatefulWidget {
   const CreateContractPage({super.key});
@@ -61,6 +64,22 @@ class _CreateContractPageState extends State<CreateContractPage> {
 
   WidgetsBinding? _widgetsBindingInstance;
 
+  final _creatorFullNameController = TextEditingController();
+
+  final _creatorRFCController = TextEditingController();
+
+  final _propertyDenominationController = TextEditingController();
+
+  final _propertyUseController = TextEditingController();
+
+  final _deadLineDateController = TextEditingController();
+
+  DateTime? _selectedDeadlineDate;
+
+  final _materialSituationController = TextEditingController();
+
+  final _parkingPlacesController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -76,6 +95,11 @@ class _CreateContractPageState extends State<CreateContractPage> {
     _rentController.dispose();
     _depositController.dispose();
     _paymentAccountController.dispose();
+    _creatorFullNameController.dispose();
+    _creatorRFCController.dispose();
+    _propertyDenominationController.dispose();
+    _propertyUseController.dispose();
+    _deadLineDateController.dispose();
   }
 
   void _fetchAllCollections() {
@@ -87,7 +111,7 @@ class _CreateContractPageState extends State<CreateContractPage> {
   }
 
   //Metodo para seleccionar la fecha
-  Future<void> _selectDate(
+  /*Future<void> _selectDate(
     BuildContext context,
     TextEditingController controller, {
     required bool isStartDate,
@@ -119,7 +143,7 @@ class _CreateContractPageState extends State<CreateContractPage> {
         controller.text = DateFormat('dd/MM/yyyy').format(pickedDate);
       });
     }
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -168,12 +192,20 @@ class _CreateContractPageState extends State<CreateContractPage> {
                 suffixIcon: Icon(Icons.calendar_today),
               ),
               readOnly: true,
-              onTap:
-                  () => _selectDate(
-                    context,
-                    _startDateController,
-                    isStartDate: true,
-                  ),
+              onTap: () {
+                showCustomDatePicker(
+                  context,
+                  _startDateController,
+                  initialDate: _selectedStartDate,
+                  helpText: 'Seleccione fecha de inicio',
+                  fieldLabelText: 'Fecha de inicio',
+                  onDateSelected: (picked) {
+                    setState(() {
+                      _selectedStartDate = picked;
+                    });
+                  },
+                );
+              },
             ),
             SizedBox(height: 16.0),
             TextField(
@@ -184,12 +216,20 @@ class _CreateContractPageState extends State<CreateContractPage> {
                 suffixIcon: Icon(Icons.calendar_today),
               ),
               readOnly: true,
-              onTap:
-                  () => _selectDate(
-                    context,
-                    _endDateController,
-                    isStartDate: false,
-                  ),
+              onTap: () {
+                showCustomDatePicker(
+                  context,
+                  _endDateController,
+                  initialDate: _selectedEndDate,
+                  helpText: 'Seleccione fecha de finalización',
+                  fieldLabelText: 'Fecha de finalización',
+                  onDateSelected: (picked) {
+                    setState(() {
+                      _selectedEndDate = picked;
+                    });
+                  },
+                );
+              },
             ),
             SizedBox(height: 16.0),
             TextField(
@@ -215,7 +255,79 @@ class _CreateContractPageState extends State<CreateContractPage> {
                 labelText: 'Cuenta para pagos',
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.0),
+            TextField(
+              controller: _creatorFullNameController,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Nombre del creador del contrato',
+              ),
+            ),
+            SizedBox(height: 16.0),
+            TextField(
+              controller: _creatorRFCController,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'RFC del creador del contrato',
+              ),
+            ),
+            SizedBox(height: 16.0),
+            TextField(
+              controller: _propertyDenominationController,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Denominación de la propiedad',
+              ),
+            ),
+            SizedBox(height: 16.0),
+            TextField(
+              controller: _propertyUseController,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Uso de la propiedad',
+              ),
+            ),
+            SizedBox(height: 10),
+            TextField(
+              controller: _deadLineDateController,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Fecha límite de pago',
+                suffixIcon: Icon(Icons.calendar_today),
+              ),
+              readOnly: true,
+              onTap: () {
+                showCustomDatePicker(
+                  context,
+                  _deadLineDateController,
+                  initialDate: _selectedDeadlineDate,
+                  helpText: 'Seleccione fecha limite',
+                  fieldLabelText: 'Fecha límite',
+                  onDateSelected: (pickedDate) {
+                    setState(() {
+                      _selectedDeadlineDate = pickedDate;
+                    });
+                  },
+                );
+              },
+            ),
+            SizedBox(height: 16.0),
+            TextField(
+              controller: _materialSituationController,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Condiciones fisicas del inmueble',
+              ),
+            ),
+            SizedBox(height: 16.0),
+            TextField(
+              controller: _parkingPlacesController,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Lugares de estacionamiento',
+              ),
+            ),
+            SizedBox(height: 20.0),
             ElevatedButton(
               onPressed: _generatePdf,
               child: const Text('Generar contrato'),
@@ -733,7 +845,76 @@ class _CreateContractPageState extends State<CreateContractPage> {
         'ownerRepresentative': selectedOwnerRepresentative!.fullName,
         'tenantFullName': selectedTenant!.fullName,
         'tenantRepresentative': selectedTenantRepresentative!.fullName,
-        'guarantorFullName': selectedGuarantor!.fullName,
+        'guarantFullName': selectedGuarantor!.fullName,
+        'propertyExtNumber': selectedProperty!.extNumber,
+        'propertyStreet': selectedProperty!.street,
+        'propertyNeighborhood': selectedProperty!.neighborhood,
+        'propertyCity': selectedProperty!.city,
+        'propertyBorough': selectedProperty!.borough,
+        'propertyState': selectedProperty!.state,
+        'propertyLandArea': selectedProperty!.landArea,
+        'propertyConstructionArea': selectedProperty!.constructionArea,
+        'propertyDeedNumber': selectedProperty!.deedNumber,
+        'propertyDeedVolume': selectedProperty!.deedVolume,
+        'propertyNotaryName': selectedProperty!.notaryName,
+        'propertyNotaryNumber': selectedProperty!.notaryNumber,
+        'propertyRegistrationDate':
+            selectedProperty!.registrationDate != null
+                ? DateFormat(
+                  'dd \'de\' MMMM \'de\' yyyy',
+                  'es',
+                ).format(selectedProperty!.registrationDate!)
+                : '',
+        'propertyRegistrationNumber': selectedProperty!.registrationNumber,
+        'propertyRegistrationFolio': selectedProperty!.registrationFolio,
+        'propertyRegistrationVolume': selectedProperty!.registrationVolume,
+        'propertyRegistrationSection': selectedProperty!.registrationSection,
+        'contractCreatorFullName': _creatorFullNameController.text,
+        'contractCreatorRFC': _creatorRFCController.text,
+        'propertyName': selectedProperty!.name,
+        'denomination': _propertyDenominationController.text,
+        'tenantRepresentativeRFC': selectedTenantRepresentative?.rfc,
+        'useProperty': _propertyUseController.text,
+        'startDate':
+            _selectedStartDate != null
+                ? DateFormat(
+                  'dd \'de\' MMMM \'de\' yyyy',
+                  'es',
+                ).format(_selectedStartDate!)
+                : '',
+        'endDate':
+            _selectedEndDate != null
+                ? DateFormat(
+                  'dd \'de\' MMMM \'de\' yyyy',
+                  'es',
+                ).format(_selectedEndDate!)
+                : '',
+        'rentalCost': double.tryParse(_rentController.text) ?? 0.0,
+        'rentalCostText': numeroAMonedaEnLetras(
+          double.tryParse(_rentController.text) ?? 0.0,
+        ),
+        'guarantDeposite': double.tryParse(_depositController.text) ?? 0.0,
+        'guarantDepositeText': numeroAMonedaEnLetras(
+          double.tryParse(_depositController.text) ?? 0.0,
+        ),
+        'paymentAccount': _paymentAccountController.text,
+        'deadlineDate':
+            _selectedDeadlineDate != null
+                ? DateFormat(
+                  'dd \'de\' MMMM \'de\' yyyy',
+                  'es',
+                ).format(_selectedDeadlineDate!)
+                : '',
+        'materialSituatuion': _materialSituationController.text,
+        'parkingPlaces': _parkingPlacesController.text,
+        'ownerZipCode': selectedOwner?.zipCode ?? '',
+        'tenantStreet': selectedTenant?.street ?? '',
+        'tenantNeighborhood': selectedTenant?.neighborhood ?? '',
+        'tenantZipCode': selectedTenant?.zipCode ?? '',
+        'contractCreationDate': DateFormat(
+          'dd \'de\' MMMM \'de\' yyyy',
+          'es',
+        ).format(DateTime.now()),
       };
 
       // Envia una solicitud POST al servidor para generar el contrato
@@ -755,11 +936,15 @@ class _CreateContractPageState extends State<CreateContractPage> {
               content: Text('Contrato generado exitosamente'),
               action: SnackBarAction(
                 label: 'Abrir PDf',
-                onPressed: () {
-                  print('Abriendo URL: $downloadUrl');
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('URL de descarga: $downloadUrl')),
-                  );
+                onPressed: () async {
+                  final Uri uri = Uri.parse(downloadUrl);
+                  if (await canLaunchUrl(uri)) {
+                    await launchUrl(uri);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('No se pudo abrir el PDF')),
+                    );
+                  }
                 },
               ),
             ),
@@ -780,7 +965,6 @@ class _CreateContractPageState extends State<CreateContractPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error al generar el contrato: $e')),
       );
-      print('Error al generar el contrato: $e');
       return;
     }
   }

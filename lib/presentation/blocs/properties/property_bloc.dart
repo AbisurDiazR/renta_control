@@ -48,26 +48,7 @@ class PropertyBloc extends Bloc<PropertyEvent, PropertyState> {
     Emitter<PropertyState> emit,
   ) async {
     try {
-      final newProperty = Property(
-        name: event.property.name,
-        street: event.property.street,
-        extNumber: event.property.extNumber,
-        intNumber: event.property.intNumber, // Puede ser null
-        neighborhood: event.property.neighborhood,
-        borough: event.property.borough,
-        city: event.property.city,
-        state: event.property.state,
-        zipCode: event.property.zipCode,
-        notes: event.property.notes,
-        ownerId:
-            event
-                .property
-                .ownerId, // Se usa ownerId en lugar de un objeto UserModel
-        status: event.property.status,
-        ownerName: event.property.ownerName,
-      );
-
-      await repository.addProperty(newProperty);
+      await repository.addProperty(event.property);
     } catch (e) {
       emit(PropertyError(message: 'Error al cargar la propiedad: $e'));
     }

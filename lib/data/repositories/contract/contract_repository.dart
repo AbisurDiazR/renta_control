@@ -7,11 +7,7 @@ class ContractRepository {
 
   Future<void> addContract(Contract contract) async {
     try {
-      await _contractsCollection.add({
-        "property": contract.property!.toMap(),
-        "renter": contract.renter,
-        "contractBody": contract.contractBody,
-      });
+      await _contractsCollection.add(contract.toMap());
     } catch (e) {
       throw Exception(e.toString());
     }
@@ -20,14 +16,7 @@ class ContractRepository {
   Stream<List<Contract>> fetchContracts() {
     return _contractsCollection.snapshots().map((querySnapshot) {
       return querySnapshot.docs.map((doc) {
-        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-        return Contract(
-          id: doc.id,
-          renter: data['renter'],
-          contractBody: data['contractBody'],
-          ownerEmail: data['ownerEmail'],
-          propertyName: data['propertyName']
-        );
+        return Contract.fromMap(doc.data() as Map<String, dynamic>, doc.id);
       }).toList();
     });
   }
