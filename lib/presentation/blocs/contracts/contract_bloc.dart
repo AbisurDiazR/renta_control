@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:renta_control/data/repositories/contract/contract_repository.dart';
 import 'package:renta_control/domain/models/contract/contract_model.dart';
@@ -14,10 +13,12 @@ class ContractBloc extends Bloc<ContractEvent, ContractState> {
   ContractBloc({required this.repository}) : super(ContractInitial()) {
     on<FetchContracts>(_onFetchContracts);
     on<ContractsUpdated>(_onContractsUpdated);
-    on<AddContract>(_addContract);
+    on<AddContract>(_onAddContract);
+    on<UpdateContract>(_onUpdateContract);
+    on<SearchContracts>(_onSearchContracts);
   }
 
-  FutureOr<void> _addContract(
+  FutureOr<void> _onAddContract(
     AddContract event,
     Emitter<ContractState> emit,
   ) async {
@@ -48,18 +49,48 @@ class ContractBloc extends Bloc<ContractEvent, ContractState> {
     ContractsUpdated event,
     Emitter<ContractState> emit,
   ) {
-    final user = FirebaseAuth.instance.currentUser;
-    final userEmail = user?.email;
-
     List<Contract> filteredContracts = event.contracts;
-
-    if (userEmail != null && userEmail != 'mendozacayu3@gmail.com') {
-      filteredContracts =
-          event.contracts
-              .where((contract) => contract.ownerEmail == userEmail)
-              .toList();
-    }
-
     emit(ContractLoaded(contracts: filteredContracts));
+  }
+
+  FutureOr<void> _onUpdateContract(
+    UpdateContract event,
+    Emitter<ContractState> emit,
+  ) async {
+    try {
+      await repository.updateContract(event.contract);
+    } catch (e) {
+      emit(ContractError(message: 'Error al actualizar el contrato'));
+    }
+  }
+
+  FutureOr<void> _onSearchContracts(
+    SearchContracts event,
+    Emitter<ContractState> emit,
+  ) {
+    if (state is ContractLoaded) {
+      final currentState = state as ContractLoaded;
+      final query = event.query.toLowerCase();
+      final filteredContracts =
+          currentState.contracts.where((contract) {
+            return contract.tenant!.fullName.toLowerCase().contains(query) ||
+                contract.property!.name.toLowerCase().contains(query) ||
+                contract.property!.street.toLowerCase().contains(query) ||
+                contract.tenant!.fullName.toLowerCase().contains(query) ||
+                contract.rentalCost.toString().toLowerCase().contains(query) ||
+                contract.denomination.toString().toLowerCase().contains(
+                  query,
+                ) ||
+                contract.property!.notes.contains(query);
+          }).toList();
+
+      emit(ContractLoaded(contracts: filteredContracts));
+    }
+  }
+
+  @override
+  Future<void> close(){
+    _contractsSubscription?.cancel();
+    return super.close();
   }
 }

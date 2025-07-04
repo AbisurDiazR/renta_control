@@ -11,6 +11,7 @@ import 'package:renta_control/presentation/blocs/owners/owner_state.dart';
 import 'package:renta_control/presentation/blocs/properties/property_bloc.dart';
 import 'package:renta_control/presentation/blocs/properties/property_event.dart';
 import 'package:renta_control/presentation/pages/owners/add_owner_page.dart';
+import 'package:collection/collection.dart'; // ¡Importante para firstWhereOrNull!
 
 class AddPropertyPage extends StatefulWidget {
   final Property? property;
@@ -24,7 +25,8 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
   final _formKey = GlobalKey<FormState>();
   final Map<String, TextEditingController> _controllers = {};
   Property? propertyObject;
-  OwnerModel? _selectedOwner;
+  OwnerModel?
+  _selectedOwner; // Ahora será inicializado por la lógica del BlocBuilder
 
   DateTime? _selectedRegistrationDate;
 
@@ -37,6 +39,7 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
   }
 
   void _fetchOwners() {
+    // Asegurarse de que este Add OwnerBloc si existe en el arbol de widgets
     BlocProvider.of<OwnerBloc>(context).add(FetchOwners());
   }
 
@@ -91,10 +94,16 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
       _controllers['notaryNumber']!.text = propertyObject!.notaryNumber ?? '';
       _controllers['notaryCity']!.text = propertyObject!.notaryCity ?? '';
       _controllers['notaryState']!.text = propertyObject!.notaryState ?? '';
+
+      // Conversión segura para registrationDate si es DateTime
+      _selectedRegistrationDate = propertyObject!.registrationDate;
       _controllers['registrationDate']!.text =
           propertyObject!.registrationDate != null
-              ? propertyObject!.registrationDate.toString()
+              ? DateFormat(
+                'dd/MM/yyyy',
+              ).format(propertyObject!.registrationDate!)
               : '';
+
       _controllers['registrationNumber']!.text =
           propertyObject!.registrationNumber ?? '';
       _controllers['registrationFolio']!.text =
@@ -103,23 +112,21 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
           propertyObject!.registrationVolume ?? '';
       _controllers['registrationSection']!.text =
           propertyObject!.registrationSection ?? '';
-      _selectedOwner =
-          propertyObject!.ownerId != null
-              ? BlocProvider.of<OwnerBloc>(context).state is OwnerLoaded
-                  ? (BlocProvider.of<OwnerBloc>(context).state as OwnerLoaded)
-                      .owners
-                      .firstWhere(
-                        (owner) => owner.id == propertyObject!.ownerId,
-                        orElse: () => null as OwnerModel,
-                      )
-                  : null
-              : null;
+
+      // No inicialices _selectedOwner aquí. Lo haremos en el BlocBuilder.
     }
   }
 
+  @override
+  void dispose() {
+    _controllers.forEach((key, controller) => controller.dispose());
+    super.dispose();
+  }
+
   void _submitForm() {
-    if (_formKey.currentState!.validate() && _selectedOwner != null) {
+    if (_formKey.currentState!.validate()) {
       final Property newProperty = Property(
+        id: propertyObject?.id, // Conservar el ID si es una actualización
         name: _controllers['name']!.text,
         street: _controllers['street']!.text,
         extNumber: _controllers['extNumber']!.text,
@@ -133,8 +140,7 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
         state: _controllers['state']!.text,
         zipCode: _controllers['zipCode']!.text,
         notes: _controllers['notes']!.text,
-        ownerId: _selectedOwner?.id,
-        ownerName: _selectedOwner?.name,
+        owner: _selectedOwner,
         status: 'disponible',
         landArea:
             _controllers['landArea']!.text.isNotEmpty
@@ -156,56 +162,69 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
         registrationVolume: _controllers['registrationVolume']!.text,
         registrationSection: _controllers['registrationSection']!.text,
       );
-      BlocProvider.of<PropertyBloc>(context).add(
-        propertyObject == null
-            ? AddProperty(property: newProperty)
-            : UpdateProperty(
-              property: propertyObject!.copyWith(
-                name: newProperty.name,
-                street: newProperty.street,
-                extNumber: newProperty.extNumber,
-                intNumber: newProperty.intNumber,
-                neighborhood: newProperty.neighborhood,
-                borough: newProperty.borough,
-                city: newProperty.city,
-                state: newProperty.state,
-                zipCode: newProperty.zipCode,
-                notes: newProperty.notes,
-                ownerId: _selectedOwner?.id,
-                status: newProperty.status,
-                ownerName: _selectedOwner?.name,
-                landArea: newProperty.landArea,
-                constructionArea: newProperty.constructionArea,
-                deedNumber: newProperty.deedNumber,
-                deedVolume: newProperty.deedVolume,
-                notaryName: newProperty.notaryName,
-                notaryNumber: newProperty.notaryNumber,
-                notaryCity: newProperty.notaryCity,
-                notaryState: newProperty.notaryState,
-                registrationDate: newProperty.registrationDate,
-                registrationNumber: newProperty.registrationNumber,
-                registrationFolio: newProperty.registrationFolio,
-                registrationVolume: newProperty.registrationVolume,
-                registrationSection: newProperty.registrationSection,
-              ),
+
+      if (propertyObject == null) {
+        BlocProvider.of<PropertyBloc>(
+          context,
+        ).add(AddProperty(property: newProperty));
+      } else {
+        BlocProvider.of<PropertyBloc>(context).add(
+          UpdateProperty(
+            property: propertyObject!.copyWith(
+              name: newProperty.name,
+              street: newProperty.street,
+              extNumber: newProperty.extNumber,
+              intNumber: newProperty.intNumber,
+              neighborhood: newProperty.neighborhood,
+              borough: newProperty.borough,
+              city: newProperty.city,
+              state: newProperty.state,
+              zipCode: newProperty.zipCode,
+              notes: newProperty.notes,
+              owner: widget.property!.owner, // Asegúrate de que _selectedOwner sea OwnerModel?
+              status: newProperty.status,
+              landArea: newProperty.landArea,
+              constructionArea: newProperty.constructionArea,
+              deedNumber: newProperty.deedNumber,
+              deedVolume: newProperty.deedVolume,
+              notaryName: newProperty.notaryName,
+              notaryNumber: newProperty.notaryNumber,
+              notaryCity: newProperty.notaryCity,
+              notaryState: newProperty.notaryState,
+              registrationDate: newProperty.registrationDate,
+              registrationNumber: newProperty.registrationNumber,
+              registrationFolio: newProperty.registrationFolio,
+              registrationVolume: newProperty.registrationVolume,
+              registrationSection: newProperty.registrationSection,
             ),
-      );
+          ),
+        );
+      }
       Navigator.pop(context);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor, complete todos los campos')),
+        const SnackBar(
+          content: Text(
+            'Por favor, complete todos los campos y seleccione un propietario',
+          ),
+        ),
       );
     }
   }
 
   void _navigateToAddOwnerPage() async {
+    setState(() {
+      _selectedOwner = null;
+    });
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const AddOwnerPage()),
     );
-    // Actualiza la lista de propietarios al volver
-    // ignore: use_build_context_synchronously
-    BlocProvider.of<OwnerBloc>(context).add(FetchOwners());
+    // Vuelve a cargar los propietarios después de agregar uno nuevo
+    if (mounted) {
+      // Asegúrate de que el widget sigue montado antes de usar el contexto
+      BlocProvider.of<OwnerBloc>(context).add(FetchOwners());
+    }
   }
 
   @override
@@ -227,13 +246,9 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
               children: [
                 for (var field in _controllers.keys)
                   _buildTextField(field, isRequired: field != 'intNumber'),
-                if (propertyObject != null)
-                  Text(
-                    'El propietario actual es: ${propertyObject!.ownerName}',
-                  ),
-
                 const SizedBox(height: 16),
-                _buildOwnerDropdown(),
+                if (propertyObject == null)
+                  _buildOwnerDropdown(), // Llama al widget del dropdown
                 const SizedBox(height: 20),
 
                 ElevatedButton(
@@ -256,7 +271,7 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
     TextInputType keyboardType = TextInputType.text;
     List<TextInputFormatter>? inputFormatters;
     bool readOnly = false;
-    bool onTapAction = false;
+    VoidCallback? onTapCallback; // Cambiado a VoidCallback?
 
     if (field == 'zipCode' ||
         field == 'landArea' ||
@@ -270,7 +285,16 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
     } else if (field == 'registrationDate') {
       keyboardType = TextInputType.datetime;
       readOnly = true;
-      onTapAction = true;
+      onTapCallback =
+          () => _selectDate(
+            context,
+            _controllers[field]!,
+            onDateTimeSelected: (date) {
+              setState(() {
+                _selectedRegistrationDate = date;
+              });
+            },
+          );
     }
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -289,44 +313,29 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
         keyboardType: keyboardType,
         inputFormatters: inputFormatters,
         readOnly: readOnly,
-        onTap:
-            onTapAction // Si onTapAction es true, esto debería ser una función directamente
-                ? () => _selectDate(
-                  context,
-                  _controllers[field]!, // Asegúrate de que no sea null si estás aquí
-                  onDateTimeSelected: (date) {
-                    setState(() {
-                      _selectedRegistrationDate = date;
-                    });
-                  },
-                )
-                : null,
+        onTap: onTapCallback, // Asigna el callback
       ),
     );
   }
 
-  // Método para seleccionar la fecha
   Future<void> _selectDate(
     BuildContext context,
-    TextEditingController controller, { // Ya no es nullable aquí
-    required Function(DateTime)
-    onDateTimeSelected, // Callback para actualizar la fecha
+    TextEditingController controller, {
+    required Function(DateTime) onDateTimeSelected,
   }) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate:
-          DateTime.now(), // Podrías usar selectedDate ?? DateTime.now() si tuvieras un initialDate para el picker
+          _selectedRegistrationDate ??
+          DateTime.now(), // Usa la fecha existente o la actual
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
       helpText: 'Selecciona una fecha',
       fieldLabelText: 'Fecha de inscripción',
-      locale: const Locale('es', 'MX'), // Usa const
+      locale: const Locale('es', 'MX'),
     );
     if (picked != null) {
-      // Quita && controller != null, ya lo pasas como no nulo
-      onDateTimeSelected(
-        picked,
-      ); // Llama al callback para actualizar la variable de estado
+      onDateTimeSelected(picked);
       controller.text = DateFormat('dd/MM/yyyy').format(picked);
     }
   }
@@ -364,73 +373,74 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
     return BlocBuilder<OwnerBloc, OwnerState>(
       builder: (context, state) {
         if (state is OwnerLoading) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         } else if (state is OwnerLoaded) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (_selectedOwner != null) {
-              final foundOwner = state.owners.firstWhere(
-                (o) => o.id == _selectedOwner!.id,
-                orElse: () => null as OwnerModel,
-              );
+          // Lógica para inicializar _selectedOwner aquí, una vez que los propietarios estén cargados.
+          // Solo si propertyObject y propertyObject.owner no son nulos y _selectedOwner aún no ha sido establecido.
+          if (propertyObject != null &&
+              propertyObject!.owner != null &&
+              _selectedOwner == null) {
+            _selectedOwner = state.owners.firstWhereOrNull(
+              (o) => o.id == propertyObject!.owner!.id,
+            );
+          }
 
-              // ignore: unnecessary_null_comparison
-              if (foundOwner != null && foundOwner != _selectedOwner) {
-                setState(() {
-                  _selectedOwner = foundOwner;
-                });
-              } else if (foundOwner == null && _selectedOwner == null) {
-                setState(() {
-                  _selectedOwner = null;
-                });
-              }
-            }
-          });
+          if (state.owners.isEmpty) {
+            return Column(
+              children: [
+                const Text(
+                  'No hay propietarios disponibles. ¿Deseas añadir uno?',
+                ),
+                ElevatedButton(
+                  onPressed: _navigateToAddOwnerPage,
+                  child: const Text('Añadir Propietario'),
+                ),
+              ],
+            );
+          }
+
           return Row(
             children: [
               Expanded(
                 child: DropdownButtonFormField<OwnerModel>(
-                  value: _selectedOwner,
+                  value:
+                      _selectedOwner, // Ahora puede ser null si no se encontró o no hay propiedad inicial
                   onChanged: (OwnerModel? value) {
                     setState(() {
-                      _selectedOwner = value!;
+                      _selectedOwner =
+                          value; // Aceptar null si el usuario lo deselecciona
                     });
                   },
                   items:
                       state.owners.map((OwnerModel owner) {
-                        return DropdownMenuItem(
+                        return DropdownMenuItem<OwnerModel>(
+                          // Asegúrate de que el tipo sea OwnerModel
                           value: owner,
                           child: Text(owner.name),
                         );
                       }).toList(),
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Seleccione propietario',
                     border: OutlineInputBorder(),
                   ),
-                  validator:
-                      (value) =>
-                          value == null && propertyObject == null
-                              ? 'Por favor selecciona un propietario'
-                              : null,
+                  // Validador mejorado: requiere selección si la lista no está vacía.
+                  validator: (value) {                    
+                    return null;
+                  },                  
                 ),
               ),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               IconButton(
-                icon: Icon(Icons.add),
+                icon: const Icon(Icons.add),
                 onPressed: _navigateToAddOwnerPage,
               ),
             ],
           );
         } else if (state is OwnerError) {
-          return Text("Error: ${state.message}");
+          return Text("Error cargando propietarios: ${state.message}");
         } else {
-          return Row(
-            children: [
-              IconButton(
-                icon: Icon(Icons.add),
-                onPressed: _navigateToAddOwnerPage,
-              ),
-            ],
-          );
+          // Estado inicial o desconocido, muestra un indicador de carga o un botón de reintento.
+          return const Center(child: CircularProgressIndicator());
         }
       },
     );

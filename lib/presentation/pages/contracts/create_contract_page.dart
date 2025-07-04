@@ -6,18 +6,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:intl/intl.dart';
+import 'package:renta_control/domain/models/contract/contract_model.dart';
 import 'package:renta_control/domain/models/guarantor/guarantor.dart';
+import 'package:renta_control/presentation/blocs/contracts/contract_bloc.dart';
+import 'package:renta_control/presentation/blocs/contracts/contract_event.dart';
 import 'package:renta_control/presentation/blocs/guarantor/guarantor_state.dart';
 import 'package:renta_control/presentation/pages/guarantors/add_guarantor.dart';
-import 'package:renta_control/domain/models/owner/owner_model.dart';
 import 'package:renta_control/domain/models/property/property.dart';
 import 'package:renta_control/domain/models/representative/representative.dart';
 import 'package:renta_control/domain/models/tenant/tenant.dart';
 import 'package:renta_control/presentation/blocs/guarantor/guarantor_bloc.dart';
 import 'package:renta_control/presentation/blocs/guarantor/guarantor_event.dart';
-import 'package:renta_control/presentation/blocs/owners/owner_bloc.dart';
-import 'package:renta_control/presentation/blocs/owners/owner_event.dart';
-import 'package:renta_control/presentation/blocs/owners/owner_state.dart';
 import 'package:renta_control/presentation/blocs/properties/property_bloc.dart';
 import 'package:renta_control/presentation/blocs/properties/property_event.dart';
 import 'package:renta_control/presentation/blocs/properties/property_state.dart';
@@ -27,15 +26,12 @@ import 'package:renta_control/presentation/blocs/representative/representative_s
 import 'package:renta_control/presentation/blocs/tenant/tenant_bloc.dart';
 import 'package:renta_control/presentation/blocs/tenant/tenant_event.dart';
 import 'package:renta_control/presentation/blocs/tenant/tenant_state.dart';
-//import 'package:intl/intl.dart';
-import 'package:renta_control/presentation/pages/owners/add_owner_page.dart';
 import 'package:renta_control/presentation/pages/properties/add_property_page.dart';
 import 'package:renta_control/presentation/pages/representatives/add_representative_page.dart';
 import 'package:renta_control/presentation/pages/tenants/add_tenant.dart';
 import 'package:http/http.dart' as http;
 import 'package:renta_control/utils/date_picker_helper.dart';
 import 'package:renta_control/utils/number_to_words_converter.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class CreateContractPage extends StatefulWidget {
   const CreateContractPage({super.key});
@@ -47,7 +43,6 @@ class CreateContractPage extends StatefulWidget {
 class _CreateContractPageState extends State<CreateContractPage> {
   Property? selectedProperty;
   Tenant? selectedTenant;
-  OwnerModel? selectedOwner;
   Guarantor? selectedGuarantor;
   Representative? selectedOwnerRepresentative;
   Representative? selectedTenantRepresentative;
@@ -80,6 +75,12 @@ class _CreateContractPageState extends State<CreateContractPage> {
 
   final _parkingPlacesController = TextEditingController();
 
+  final _firstRentalMonthsController = TextEditingController();
+
+  final _lastRentalMonthsController = TextEditingController();
+
+  bool pdfCreated = false;
+
   @override
   void initState() {
     super.initState();
@@ -100,50 +101,19 @@ class _CreateContractPageState extends State<CreateContractPage> {
     _propertyDenominationController.dispose();
     _propertyUseController.dispose();
     _deadLineDateController.dispose();
+    _materialSituationController.dispose();
+    _parkingPlacesController.dispose();
+    _firstRentalMonthsController.dispose();
+    _lastRentalMonthsController.dispose();
   }
 
   void _fetchAllCollections() {
     BlocProvider.of<PropertyBloc>(context).add(FetchProperties());
     BlocProvider.of<TenantBloc>(context).add(FetchTenants());
-    BlocProvider.of<OwnerBloc>(context).add(FetchOwners());
+    //BlocProvider.of<OwnerBloc>(context).add(FetchOwners());
     BlocProvider.of<GuarantorBloc>(context).add(FetchGuarantors());
     BlocProvider.of<RepresentativeBloc>(context).add(FetchRepresentatives());
   }
-
-  //Metodo para seleccionar la fecha
-  /*Future<void> _selectDate(
-    BuildContext context,
-    TextEditingController controller, {
-    required bool isStartDate,
-  }) async {
-    final DateTime initialDate =
-        (isStartDate ? _selectedStartDate : _selectedEndDate) ?? DateTime.now();
-
-    final DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: initialDate,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-      helpText:
-          isStartDate
-              ? 'Selecciona la fecha de inicio'
-              : 'Selecciona la fecha de finalización',
-      cancelText: 'Cancelar',
-      confirmText: 'Aceptar',
-      locale: Locale('es', 'ES'),
-    );
-
-    if (pickedDate != null) {
-      setState(() {
-        if (isStartDate) {
-          _selectedStartDate = pickedDate;
-        } else {
-          _selectedEndDate = pickedDate;
-        }
-        controller.text = DateFormat('dd/MM/yyyy').format(pickedDate);
-      });
-    }
-  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -167,8 +137,8 @@ class _CreateContractPageState extends State<CreateContractPage> {
               },
               labelText: "Seleccione un representante del inquilino",
             ),
-            SizedBox(height: 16.0),
-            _buildOwnerSelector(),
+            /*SizedBox(height: 16.0),
+            _buildOwnerSelector(),*/
             SizedBox(height: 16.0),
             _buildRepresentativeSelector(
               isOwnerRepresentative: true,
@@ -238,6 +208,25 @@ class _CreateContractPageState extends State<CreateContractPage> {
                 border: OutlineInputBorder(),
                 labelText: 'Renta mensual',
               ),
+              keyboardType: TextInputType.number,
+            ),
+            SizedBox(height: 16.0),
+            TextField(
+              controller: _firstRentalMonthsController,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Primeros meses',
+              ),
+              keyboardType: TextInputType.number,
+            ),
+            SizedBox(height: 16.0),
+            TextField(
+              controller: _lastRentalMonthsController,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Ultimos meses',
+              ),
+              keyboardType: TextInputType.number,
             ),
             SizedBox(height: 16.0),
             TextField(
@@ -246,6 +235,7 @@ class _CreateContractPageState extends State<CreateContractPage> {
                 border: OutlineInputBorder(),
                 labelText: 'Depósito en garantía',
               ),
+              keyboardType: TextInputType.number,
             ),
             SizedBox(height: 16.0),
             TextField(
@@ -326,6 +316,7 @@ class _CreateContractPageState extends State<CreateContractPage> {
                 border: OutlineInputBorder(),
                 labelText: 'Lugares de estacionamiento',
               ),
+              keyboardType: TextInputType.number,
             ),
             SizedBox(height: 20.0),
             ElevatedButton(
@@ -489,86 +480,6 @@ class _CreateContractPageState extends State<CreateContractPage> {
                 icon: Icon(Icons.add),
                 onPressed: () {
                   _navigateToAdd('tenant');
-                },
-              ),
-            ],
-          );
-        }
-      },
-    );
-  }
-
-  Widget _buildOwnerSelector() {
-    return BlocBuilder<OwnerBloc, OwnerState>(
-      builder: (context, state) {
-        if (state is OwnerLoading) {
-          return Center(child: CircularProgressIndicator());
-        } else if (state is OwnerLoaded) {
-          _widgetsBindingInstance?.addPostFrameCallback((_) {
-            if (selectedOwner != null) {
-              final foundOwner = state.owners.firstWhereOrNull(
-                (o) => o.id == selectedOwner!.id,
-              );
-
-              if (foundOwner != null && foundOwner != selectedOwner) {
-                setState(() {
-                  selectedOwner = foundOwner;
-                });
-              } else if (foundOwner == null && selectedOwner != null) {
-                setState(() {
-                  selectedOwner = null;
-                });
-              }
-            }
-          });
-          return Row(
-            children: [
-              Expanded(
-                child: DropdownButtonFormField<OwnerModel>(
-                  value: selectedOwner,
-                  onChanged: (OwnerModel? value) {
-                    setState(() {
-                      selectedOwner = value!;
-                    });
-                  },
-                  items:
-                      state.owners.map((OwnerModel owner) {
-                        return DropdownMenuItem(
-                          value: owner,
-                          child: Text(owner.name),
-                        );
-                      }).toList(),
-                  decoration: InputDecoration(
-                    labelText: 'Selecciones un propietario',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator:
-                      (value) =>
-                          value == null
-                              ? 'Por favor seleccione un propietario'
-                              : null,
-                ),
-              ),
-              SizedBox(width: 10),
-              IconButton(
-                icon: Icon(Icons.add),
-                onPressed: () {
-                  _navigateToAdd('owner');
-                },
-              ),
-            ],
-          );
-        } else if (state is OwnerError) {
-          return Text("Error: ${state.message}");
-        } else {
-          return Row(
-            children: [
-              Text("No se encuentran propietarios registrados"),
-              SizedBox(width: 10),
-              IconButton(
-                icon: Icon(Icons.add),
-                onPressed: () {
-                  _navigateToAdd('owner');
                 },
               ),
             ],
@@ -799,14 +710,6 @@ class _CreateContractPageState extends State<CreateContractPage> {
         context,
         MaterialPageRoute(builder: (context) => AddTenantPage()),
       );
-    } else if (typeElement == 'owner') {
-      setState(() {
-        selectedOwner = null;
-      });
-      await Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => AddOwnerPage()),
-      );
     }
   }
 
@@ -822,7 +725,7 @@ class _CreateContractPageState extends State<CreateContractPage> {
 
     if (selectedProperty == null ||
         selectedTenant == null ||
-        selectedOwner == null ||
+        //selectedOwner == null ||
         _selectedStartDate == null ||
         _selectedEndDate == null ||
         _rentController.text.isEmpty ||
@@ -841,7 +744,7 @@ class _CreateContractPageState extends State<CreateContractPage> {
 
     try {
       final Map<String, dynamic> contractData = {
-        'ownerFullName': selectedOwner!.name,
+        'ownerFullName': selectedProperty!.owner!.name,
         'ownerRepresentative': selectedOwnerRepresentative!.fullName,
         'tenantFullName': selectedTenant!.fullName,
         'tenantRepresentative': selectedTenantRepresentative!.fullName,
@@ -893,6 +796,8 @@ class _CreateContractPageState extends State<CreateContractPage> {
         'rentalCostText': numeroAMonedaEnLetras(
           double.tryParse(_rentController.text) ?? 0.0,
         ),
+        'firstRentalMonths': _firstRentalMonthsController.text,
+        'lastRentalMonths': _lastRentalMonthsController.text,
         'guarantDeposite': double.tryParse(_depositController.text) ?? 0.0,
         'guarantDepositeText': numeroAMonedaEnLetras(
           double.tryParse(_depositController.text) ?? 0.0,
@@ -907,7 +812,7 @@ class _CreateContractPageState extends State<CreateContractPage> {
                 : '',
         'materialSituatuion': _materialSituationController.text,
         'parkingPlaces': _parkingPlacesController.text,
-        'ownerZipCode': selectedOwner?.zipCode ?? '',
+        'ownerZipCode': selectedProperty!.owner!.zipCode,
         'tenantStreet': selectedTenant?.street ?? '',
         'tenantNeighborhood': selectedTenant?.neighborhood ?? '',
         'tenantZipCode': selectedTenant?.zipCode ?? '',
@@ -931,23 +836,37 @@ class _CreateContractPageState extends State<CreateContractPage> {
         final String? downloadUrl = responseBody['downloadUrl'];
 
         if (downloadUrl != null && downloadUrl.isNotEmpty) {
+          final Contract newContract = Contract(
+            contractCreatorFullName: _creatorFullNameController.text,
+            contractCreatorRFC: _creatorRFCController.text,
+            contractStartDate: _selectedStartDate,
+            contractEndDate: _selectedEndDate,
+            contractCreationDate: DateTime.now(),
+            rentalCost: _rentController.text,
+            rentalCostText: _rentController.text,
+            guarantDeposite: _depositController.text,
+            guarantDepositeText: _depositController.text,
+            property: selectedProperty!,
+            tenant: selectedTenant!,
+            guarantor: selectedGuarantor!,
+            denomination: _propertyDenominationController.text,
+            useProperty: _propertyUseController.text,
+            deadlineDate: _selectedDeadlineDate,
+            materialSituation: _materialSituationController.text,
+            parkingPlaces: _parkingPlacesController.text,
+            firstRentalMonths: _firstRentalMonthsController.text,
+            lastRentalMonths: _lastRentalMonthsController.text,
+            contractUrl: downloadUrl,
+          );
+
+          BlocProvider.of<ContractBloc>(
+            context,
+          ).add(AddContract(contract: newContract));
+
+          Navigator.pop(context);
+
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Contrato generado exitosamente'),
-              action: SnackBarAction(
-                label: 'Abrir PDf',
-                onPressed: () async {
-                  final Uri uri = Uri.parse(downloadUrl);
-                  if (await canLaunchUrl(uri)) {
-                    await launchUrl(uri);
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('No se pudo abrir el PDF')),
-                    );
-                  }
-                },
-              ),
-            ),
+            SnackBar(content: Text('Contrato generado exitosamente')),
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(

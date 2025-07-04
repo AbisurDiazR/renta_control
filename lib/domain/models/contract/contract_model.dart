@@ -1,3 +1,11 @@
+// ignore_for_file: no_leading_underscores_for_local_identifiers
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+//import 'package:intl/intl.dart';
+import 'package:renta_control/domain/models/guarantor/guarantor.dart';
+import 'package:renta_control/domain/models/property/property.dart';
+import 'package:renta_control/domain/models/tenant/tenant.dart';
+
 class Contract {
   final String? id;
   final String? contractCreatorFullName;
@@ -11,13 +19,15 @@ class Contract {
   final String? lastRentalMonths;
   final String? guarantDeposite;
   final String? guarantDepositeText;
-  final String? deadlineDate;
+  final DateTime? deadlineDate;
   final String? materialSituation;
   final String? parkingPlaces;
   final String? useProperty;
   final String? denomination;
-  final String? ownerEmail;
   final String? contractUrl;
+  final Property? property;
+  final Tenant? tenant;
+  final Guarantor? guarantor;
 
   Contract({
     this.id,
@@ -37,8 +47,10 @@ class Contract {
     this.parkingPlaces,
     this.useProperty,
     this.denomination,
-    this.ownerEmail,
     this.contractUrl,
+    this.property,
+    this.tenant,
+    this.guarantor,
   });
 
   Contract copyWith({
@@ -54,13 +66,16 @@ class Contract {
     String? lastRentalMonths,
     String? guarantDeposite,
     String? guarantDepositeText,
-    String? deadlineDate,
+    DateTime? deadlineDate,
     String? materialSituation,
     String? parkingPlaces,
     String? useProperty,
     String? denomination,
-    String? ownerEmail,
+    String? ownerContract,
     String? contractUrl,
+    Property? property,
+    Tenant? tenant,
+    Guarantor? guarantor,
   }) {
     return Contract(
       id: id ?? this.id,
@@ -81,8 +96,10 @@ class Contract {
       parkingPlaces: parkingPlaces ?? this.parkingPlaces,
       useProperty: useProperty ?? this.useProperty,
       denomination: denomination ?? this.denomination,
-      ownerEmail: ownerEmail ?? this.ownerEmail,
       contractUrl: contractUrl ?? this.contractUrl,
+      property: property ?? this.property,
+      tenant: tenant ?? this.tenant,
+      guarantor: guarantor ?? this.guarantor,
     );
   }
 
@@ -105,41 +122,99 @@ class Contract {
       'parkingPlaces': parkingPlaces,
       'useProperty': useProperty,
       'denomination': denomination,
-      'ownerEmail': ownerEmail,
       'contractUrl': contractUrl,
+      'property': property?.toMap(),
+      'tenant': tenant?.toMap(),
+      'guarantor': guarantor?.toMap(),
     };
   }
 
   factory Contract.fromMap(Map<String, dynamic> map, String docId) {
+    // Función auxiliar para parsear fechas de diferentes formatos de Firestore    
+    DateTime? _parseDateTime(dynamic value) {
+      if (value == null) return null;
+      if (value is String) {
+        try {
+          return DateTime.parse(value);
+        } catch (e) {
+          // Log or handle parsing error if needed
+          return null;
+        }
+      } else if (value is Timestamp) {
+        return value.toDate();
+      }
+      return null;
+    }
+
+    // Función auxiliar para parsear sub-mapas de modelos anidados
+    // Esto es crucial para manejar la nulidad de forma segura y evitar el 'as Map<String, dynamic>'
+    T? _parseNestedModel<T>(
+      dynamic data,
+      T Function(Map<String, dynamic>, String?) fromMapFunction,
+    ) {
+      if (data is Map<String, dynamic>) {
+        // Asumiendo que el ID del sub-documento (si existe) está dentro de su propio mapa.
+        // Si no tienen un 'id' dentro de su mapa, puedes pasar null o una cadena vacía al fromMapFunction.
+        String? nestedId = data['id'] as String?;
+        return fromMapFunction(data, nestedId);
+      }
+      return null;
+    }
+
     return Contract(
-      id: docId,
-      contractCreatorFullName: map['contractCreatorFullName'],
-      contractCreatorRFC: map['contractCreatorRFC'],
-      contractStartDate:
-          map['contractStartDate'] != null
-              ? DateTime.parse(map['contractStartDate'])
-              : null,
-      contractEndDate:
-          map['contractEndDate'] != null
-              ? DateTime.parse(map['contractEndDate'])
-              : null,
-      contractCreationDate:
-          map['contractCreationDate'] != null
-              ? DateTime.parse(map['contractCreationDate'])
-              : null,
-      rentalCost: map['rentalCost'],
-      rentalCostText: map['rentalCostText'],
-      firstRentalMonths: map['firstRentalMonths'],
-      lastRentalMonths: map['lastRentalMonths'],
-      guarantDeposite: map['guarantDeposite'],
-      guarantDepositeText: map['guarantDepositeText'],
-      deadlineDate: map['deadlineDate'],
-      materialSituation: map['materialSituation'],
-      parkingPlaces: map['parkingPlaces'],
-      useProperty: map['useProperty'],
-      denomination: map['denomination'],
-      ownerEmail: map['ownerEmail'],
-      contractUrl: map['contractUrl'],
+      id: docId, // El ID del documento de Firestore para este contrato
+      contractCreatorFullName: map['contractCreatorFullName'] as String?,
+      contractCreatorRFC: map['contractCreatorRFC'] as String?,
+      contractStartDate: _parseDateTime(map['contractStartDate']),
+      contractEndDate: _parseDateTime(map['contractEndDate']),
+      contractCreationDate: _parseDateTime(map['contractCreationDate']),
+      rentalCost: map['rentalCost'] as String?,
+      rentalCostText: map['rentalCostText'] as String?,
+      firstRentalMonths: map['firstRentalMonths'] as String?,
+      lastRentalMonths: map['lastRentalMonths'] as String?,
+      guarantDeposite: map['guarantDeposite'] as String?,
+      guarantDepositeText: map['guarantDepositeText'] as String?,
+      // deadlineDate puede ser un Timestamp o un String en Firestore, pero el modelo espera DateTime?.
+      deadlineDate: map['deadlineDate'] != null
+          ? (map['deadlineDate'] is Timestamp
+              ? (map['deadlineDate'] as Timestamp).toDate()
+              : (map['deadlineDate'] is String
+                  ? DateTime.tryParse(map['deadlineDate'] as String)
+                  : null))
+          : null,
+      materialSituation: map['materialSituation'] as String?,
+      parkingPlaces: map['parkingPlaces'] as String?,
+      useProperty: map['useProperty'] as String?,
+      denomination: map['denomination'] as String?,
+      contractUrl: map['contractUrl'] as String?,
+
+      // === MANEJO DE OBJETOS ANIDADOS ===
+      // Aquí usamos la función auxiliar _parseNestedModel para mayor seguridad
+      // y para pasar el ID correcto a los fromMap de los sub-modelos.
+
+      // IMPORTANTE: En tu Firestore JSON, 'property' contiene los datos de la propiedad,
+      // NO 'owner'. Debes cambiar 'map['owner']' a 'map['property']'.
+      property: _parseNestedModel<Property>(
+        map['property'], // <-- CORREGIDO: Usar 'property'
+        (data, nestedId) => Property.fromMap(
+          data,
+          nestedId ?? '',
+        ), // Pasa el ID del sub-documento (o '')
+      ),
+      tenant: _parseNestedModel<Tenant>(
+        map['tenant'],
+        (data, nestedId) => Tenant.fromMap(
+          data,
+          nestedId ?? '',
+        ), // Pasa el ID del sub-documento (o '')
+      ),
+      guarantor: _parseNestedModel<Guarantor>(
+        map['guarantor'],
+        (data, nestedId) => Guarantor.fromMap(
+          data,
+          nestedId ?? '',
+        ), // Pasa el ID del sub-documento (o '')
+      ),
     );
   }
 }

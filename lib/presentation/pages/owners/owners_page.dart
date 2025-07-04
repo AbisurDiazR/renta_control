@@ -23,124 +23,132 @@ class OwnerPage extends StatelessWidget {
         children: [
           const Padding(padding: EdgeInsets.all(8.0), child: OwnerSearchBar()),
           Expanded(
-            child: BlocBuilder<OwnerBloc, OwnerState>(
-              builder: (context, state) {
-                if (state is OwnerLoading) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (state is OwnerLoaded) {
-                  if (state.owners.isEmpty) {
-                    return const Center(
-                      child: Text('No hay propietarios disponibles'),
-                    );
-                  }
+            child: Padding(
+              padding: EdgeInsets.only(bottom: 80.0),
+              child: BlocBuilder<OwnerBloc, OwnerState>(
+                builder: (context, state) {
+                  if (state is OwnerLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (state is OwnerLoaded) {
+                    if (state.owners.isEmpty) {
+                      return const Center(
+                        child: Text('No hay propietarios disponibles'),
+                      );
+                    }
 
-                  return ListView.builder(
-                    itemCount: state.owners.length,
-                    itemBuilder: (context, index) {
-                      final owner = state.owners[index];
-                      return ListTile(
-                        visualDensity: VisualDensity(vertical: 4),
-                        leading: CircleAvatar(
-                          child: Text(
-                            owner.name.isNotEmpty ? owner.name[0] : '?',
-                          ),
-                        ),
-                        title: Text(
-                          owner.name,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Correo: ${owner.email}'),
-                            Text('Teléfono: ${owner.phone}'),
-                            Text(
-                              'Dirección: ${owner.street} ${owner.extNumber}'
-                              '${owner.intNumber != null ? ' Int. ${owner.intNumber}' : ''}, '
-                              '${owner.neighborhood}, ${owner.borough}, ${owner.city}, ${owner.state}, C.P. ${owner.zipCode}',
+                    return ListView.builder(
+                      itemCount: state.owners.length,
+                      itemBuilder: (context, index) {
+                        final owner = state.owners[index];
+                        return ListTile(
+                          visualDensity: VisualDensity(vertical: 4),
+                          leading: CircleAvatar(
+                            child: Text(
+                              owner.name.isNotEmpty ? owner.name[0] : '?',
                             ),
-                          ],
-                        ),
-                        trailing: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
+                          ),
+                          title: Text(
+                            owner.name,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              IconButton(
-                                icon: const Icon(Icons.remove_red_eye),
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder:
-                                          (_) =>
-                                              OwnerPropertiesList(owner: owner),
-                                    ),
-                                  );
-                                },
-                              ),
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.delete,
-                                  color: Colors.red,
-                                ),
-                                onPressed: () async {
-                                  final confirm = await showDialog<bool>(
-                                    context: context,
-                                    builder:
-                                        (context) => AlertDialog(
-                                          title: Text('Confirmar eliminación'),
-                                          content: Text(
-                                            '¿Esta seguro de que desea eliminar este propietario?',
-                                          ),
-                                          actions: [
-                                            TextButton(
-                                              onPressed:
-                                                  () => Navigator.pop(
-                                                    context,
-                                                    false,
-                                                  ),
-                                              child: Text('Cancelar'),
-                                            ),
-                                            TextButton(
-                                              onPressed:
-                                                  () => Navigator.pop(
-                                                    context,
-                                                    true,
-                                                  ),
-                                              child: Text('Aceptar'),
-                                            ),
-                                          ],
-                                        ),
-                                  );
-                                  if (confirm == true) {
-                                    context.read<OwnerBloc>().add(
-                                      DeleteOwner(ownerId: owner.id!),
-                                    );
-                                  }
-                                },
+                              Text('Correo: ${owner.email}'),
+                              Text('Teléfono: ${owner.phone}'),
+                              Text(
+                                'Dirección: ${owner.street} ${owner.extNumber}'
+                                '${owner.intNumber != null ? ' Int. ${owner.intNumber}' : ''}, '
+                                '${owner.neighborhood}, ${owner.borough}, ${owner.city}, ${owner.state}, C.P. ${owner.zipCode}',
                               ),
                             ],
                           ),
-                        ),
-
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => AddOwnerPage(owner: owner),
+                          trailing: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.remove_red_eye),
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder:
+                                            (_) => OwnerPropertiesList(
+                                              owner: owner,
+                                            ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                                IconButton(
+                                  icon: const Icon(
+                                    Icons.delete,
+                                    color: Colors.red,
+                                  ),
+                                  onPressed: () async {
+                                    final confirm = await showDialog<bool>(
+                                      context: context,
+                                      builder:
+                                          (context) => AlertDialog(
+                                            title: Text(
+                                              'Confirmar eliminación',
+                                            ),
+                                            content: Text(
+                                              '¿Esta seguro de que desea eliminar este propietario?',
+                                            ),
+                                            actions: [
+                                              TextButton(
+                                                onPressed:
+                                                    () => Navigator.pop(
+                                                      context,
+                                                      false,
+                                                    ),
+                                                child: Text('Cancelar'),
+                                              ),
+                                              TextButton(
+                                                onPressed:
+                                                    () => Navigator.pop(
+                                                      context,
+                                                      true,
+                                                    ),
+                                                child: Text('Aceptar'),
+                                              ),
+                                            ],
+                                          ),
+                                    );
+                                    if (confirm == true) {
+                                      context.read<OwnerBloc>().add(
+                                        DeleteOwner(ownerId: owner.id!),
+                                      );
+                                    }
+                                  },
+                                ),
+                              ],
                             ),
-                          );
-                        },
-                      );
-                    },
-                  );
-                } else if (state is OwnerError) {
-                  return Center(child: Text(state.message));
-                } else {
-                  return const Center(child: Text('Cargando propietarios...'));
-                }
-              },
+                          ),
+
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => AddOwnerPage(owner: owner),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    );
+                  } else if (state is OwnerError) {
+                    return Center(child: Text(state.message));
+                  } else {
+                    return const Center(
+                      child: Text('Cargando propietarios...'),
+                    );
+                  }
+                },
+              ),
             ),
           ),
         ],

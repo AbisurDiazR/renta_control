@@ -26,89 +26,97 @@ class GuarantorsPage extends StatelessWidget {
               child: GuarantorSearchBar(),
             ),
             Expanded(
-              child: BlocBuilder<GuarantorBloc, GuarantorState>(
-                builder: (context, state) {
-                  if (state is GuarantorLoading) {
-                    return Center(child: CircularProgressIndicator());
-                  } else if (state is GuarantorLoaded) {
-                    final guarantors = state.guarantors;
-                    return ListView.builder(
-                      itemCount: guarantors.length,
-                      itemBuilder: (context, index) {
-                        final guarantor = guarantors[index];
-                        return ListTile(
-                          leading: CircleAvatar(
-                            child: Text(
-                              guarantor.fullName.isNotEmpty
-                                  ? guarantor.fullName[0]
-                                  : '?',
+              child: Padding(
+                padding: EdgeInsets.only(bottom: 80.0),
+                child: BlocBuilder<GuarantorBloc, GuarantorState>(
+                  builder: (context, state) {
+                    if (state is GuarantorLoading) {
+                      return Center(child: CircularProgressIndicator());
+                    } else if (state is GuarantorLoaded) {
+                      final guarantors = state.guarantors;
+                      return ListView.builder(
+                        itemCount: guarantors.length,
+                        itemBuilder: (context, index) {
+                          final guarantor = guarantors[index];
+                          return ListTile(
+                            leading: CircleAvatar(
+                              child: Text(
+                                guarantor.fullName.isNotEmpty
+                                    ? guarantor.fullName[0]
+                                    : '?',
+                              ),
                             ),
-                          ),
-                          title: Text(guarantor.fullName),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Email: ${guarantor.email}'),
-                              Text('Teléfono: ${guarantor.phoneNumber}'),
-                              Text(
-                                'Dirección: ${guarantor.street} ${guarantor.extNumber}, ${guarantor.neighborhood}',
-                              ),
-                            ],
-                          ),
-                          trailing: IconButton(
-                            icon: Icon(Icons.delete),
-                            onPressed: () async {
-                              final confirm = await showDialog<bool>(
-                                context: context,
-                                builder:
-                                    (context) => AlertDialog(
-                                      title: Text('Confirmar eliminación'),
-                                      content: Text(
-                                        '¿Esta seguro de que desea eliminar este fiador?',
+                            title: Text(guarantor.fullName),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Email: ${guarantor.email}'),
+                                Text('Teléfono: ${guarantor.phoneNumber}'),
+                                Text(
+                                  'Dirección: ${guarantor.street} ${guarantor.extNumber}, ${guarantor.neighborhood}',
+                                ),
+                              ],
+                            ),
+                            trailing: IconButton(
+                              icon: Icon(Icons.delete),
+                              onPressed: () async {
+                                final confirm = await showDialog<bool>(
+                                  context: context,
+                                  builder:
+                                      (context) => AlertDialog(
+                                        title: Text('Confirmar eliminación'),
+                                        content: Text(
+                                          '¿Esta seguro de que desea eliminar este fiador?',
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed:
+                                                () => Navigator.pop(
+                                                  context,
+                                                  false,
+                                                ),
+                                            child: Text('Cancelar'),
+                                          ),
+                                          TextButton(
+                                            onPressed:
+                                                () => Navigator.pop(
+                                                  context,
+                                                  true,
+                                                ),
+                                            child: Text('Aceptar'),
+                                          ),
+                                        ],
                                       ),
-                                      actions: [
-                                        TextButton(
-                                          onPressed:
-                                              () =>
-                                                  Navigator.pop(context, false),
-                                          child: Text('Cancelar'),
-                                        ),
-                                        TextButton(
-                                          onPressed:
-                                              () =>
-                                                  Navigator.pop(context, true),
-                                          child: Text('Aceptar'),
-                                        ),
-                                      ],
-                                    ),
-                              );
-                              if (confirm == true) {
-                                context.read<GuarantorBloc>().add(
-                                  DeleteGuarantor(guarantorId: guarantor.id),
                                 );
-                              }
+                                if (confirm == true) {
+                                  context.read<GuarantorBloc>().add(
+                                    DeleteGuarantor(guarantorId: guarantor.id),
+                                  );
+                                }
+                              },
+                            ),
+                            onTap: () {
+                              // Navigate to the guarantor details page
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) => AddGuarantorPage(
+                                        guarantor: guarantor,
+                                      ),
+                                ),
+                              );
                             },
-                          ),
-                          onTap: () {
-                            // Navigate to the guarantor details page
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder:
-                                    (context) =>
-                                        AddGuarantorPage(guarantor: guarantor),
-                              ),
-                            );
-                          },
-                        );
-                      },
-                    );
-                  } else if (state is GuarantorError) {
-                    return Center(child: Text('Failed to load guarantors'));
-                  } else {
-                    return Center(child: Text('No guarantors available'));
-                  }
-                },
+                          );
+                        },
+                      );
+                    } else if (state is GuarantorError) {
+                      return Center(child: Text('Failed to load guarantors'));
+                    } else {
+                      return Center(child: Text('No guarantors available'));
+                    }
+                  },
+                ),
               ),
             ),
           ],

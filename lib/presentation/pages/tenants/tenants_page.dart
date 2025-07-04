@@ -23,87 +23,95 @@ class TenantsPage extends StatelessWidget {
           children: [
             Padding(padding: EdgeInsets.all(8.0), child: TenantSearchBar()),
             Expanded(
-              child: BlocBuilder<TenantBloc, TenantState>(
-                builder: (context, state) {
-                  if (state is TenantLoading) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else if (state is TenantLoaded) {
-                    return ListView.builder(
-                      itemCount: state.tenants.length,
-                      itemBuilder: (context, index) {
-                        final tenant = state.tenants[index];
-                        return ListTile(
-                          leading: CircleAvatar(
-                            child: Text(
-                              tenant.fullName.isNotEmpty
-                                  ? tenant.fullName[0]
-                                  : '?',
+              child: Padding(
+                padding: EdgeInsets.only(bottom: 80.0),
+                child: BlocBuilder<TenantBloc, TenantState>(
+                  builder: (context, state) {
+                    if (state is TenantLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (state is TenantLoaded) {
+                      return ListView.builder(
+                        itemCount: state.tenants.length,
+                        itemBuilder: (context, index) {
+                          final tenant = state.tenants[index];
+                          return ListTile(
+                            leading: CircleAvatar(
+                              child: Text(
+                                tenant.fullName.isNotEmpty
+                                    ? tenant.fullName[0]
+                                    : '?',
+                              ),
                             ),
-                          ),
-                          title: Text(
-                            tenant.fullName,
-                          ), // Replace with tenant name
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Email: ${tenant.email}'),
-                              Text('Teléfono: ${tenant.phone}'),
-                              Text(
-                                'Dirección: ${tenant.street} ${tenant.extNumber}, ${tenant.neighborhood}',
-                              ),
-                            ],
-                          ),
-                          trailing: IconButton(
-                            icon: Icon(Icons.delete),
-                            onPressed: () async {
-                              final confirm = await showDialog<bool>(
-                                context: context,
-                                builder:
-                                    (context) => AlertDialog(
-                                      title: Text('Confirmar eliminación'),
-                                      content: Text(
-                                        '¿Esta seguro de que desea eliminar este inquilino?',
+                            title: Text(
+                              tenant.fullName,
+                            ), // Replace with tenant name
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Email: ${tenant.email}'),
+                                Text('Teléfono: ${tenant.phone}'),
+                                Text(
+                                  'Dirección: ${tenant.street} ${tenant.extNumber}, ${tenant.neighborhood}',
+                                ),
+                              ],
+                            ),
+                            trailing: IconButton(
+                              icon: Icon(Icons.delete),
+                              onPressed: () async {
+                                final confirm = await showDialog<bool>(
+                                  context: context,
+                                  builder:
+                                      (context) => AlertDialog(
+                                        title: Text('Confirmar eliminación'),
+                                        content: Text(
+                                          '¿Esta seguro de que desea eliminar este inquilino?',
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed:
+                                                () => Navigator.pop(
+                                                  context,
+                                                  false,
+                                                ),
+                                            child: Text('Cancelar'),
+                                          ),
+                                          TextButton(
+                                            onPressed:
+                                                () => Navigator.pop(
+                                                  context,
+                                                  true,
+                                                ),
+                                            child: Text('Aceptar'),
+                                          ),
+                                        ],
                                       ),
-                                      actions: [
-                                        TextButton(
-                                          onPressed:
-                                              () =>
-                                                  Navigator.pop(context, false),
-                                          child: Text('Cancelar'),
-                                        ),
-                                        TextButton(
-                                          onPressed:
-                                              () =>
-                                                  Navigator.pop(context, true),
-                                          child: Text('Aceptar'),
-                                        ),
-                                      ],
-                                    ),
-                              );
-                              if (confirm == true) {
-                                context.read<TenantBloc>().add(
-                                  DeleteTenant(tenantId: tenant.id!),
                                 );
-                              }
+                                if (confirm == true) {
+                                  context.read<TenantBloc>().add(
+                                    DeleteTenant(tenantId: tenant.id!),
+                                  );
+                                }
+                              },
+                            ),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) =>
+                                          AddTenantPage(tenant: tenant),
+                                ),
+                              );
                             },
-                          ),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder:
-                                    (context) => AddTenantPage(tenant: tenant),
-                              ),
-                            );
-                          },
-                        );
-                      },
-                    );
-                  } else if (state is TenantError) {
-                    return Center(child: Text('Error: ${state.message}'));
-                  }
-                  return const Center(child: Text('No tenants available.'));
-                },
+                          );
+                        },
+                      );
+                    } else if (state is TenantError) {
+                      return Center(child: Text('Error: ${state.message}'));
+                    }
+                    return const Center(child: Text('No tenants available.'));
+                  },
+                ),
               ),
             ),
           ],

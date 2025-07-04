@@ -55,6 +55,7 @@ dependencies:
   collection: ^1.18.0
   docx_template: ^0.3.4
   url_launcher: ^6.3.1
+  flutter_pdfview: ^1.4.1+1
 
 dev_dependencies:
   flutter_test:

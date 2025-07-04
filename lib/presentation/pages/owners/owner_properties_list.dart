@@ -54,14 +54,14 @@ class _OwnerPropertiesListState extends State<OwnerPropertiesList> {
                       itemCount:
                           state.properties
                               .where(
-                                (property) => property.ownerId == _owner.id,
+                                (property) => property.owner!.id == _owner.id,
                               )
                               .length,
                       itemBuilder: (context, index) {
                         final filteredProperties =
                             state.properties
                                 .where(
-                                  (property) => property.ownerId == _owner.id,
+                                  (property) => property.owner!.id == _owner.id,
                                 )
                                 .toList();
                         final property = filteredProperties[index];
@@ -75,7 +75,7 @@ class _OwnerPropertiesListState extends State<OwnerPropertiesList> {
                               subtitle: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('Propietario: ${property.ownerName}'),
+                                  Text('Propietario: ${property.owner!.name}'),
                                   Text(
                                     'Dirección: ${property.street} ${property.extNumber}, ${property.neighborhood}',
                                   ),

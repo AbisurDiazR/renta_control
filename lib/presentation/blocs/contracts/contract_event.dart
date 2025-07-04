@@ -26,4 +26,11 @@ class AddContract extends ContractEvent {
   List<Object> get props => [contract];
 }
 
-class UpdateContract extends ContractEvent {}
+class UpdateContract extends ContractEvent {
+  final Contract contract;
+
+  UpdateContract({required this.contract});
+
+  @override
+  List<Object> get props => [contract];
+}

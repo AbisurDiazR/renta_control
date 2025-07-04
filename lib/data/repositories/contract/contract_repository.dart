@@ -13,6 +13,14 @@ class ContractRepository {
     }
   }
 
+  Future<void> updateContract(Contract contract) async {
+    try {
+      await _contractsCollection.doc(contract.id).update(contract.toMap());
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+  }
+
   Stream<List<Contract>> fetchContracts() {
     return _contractsCollection.snapshots().map((querySnapshot) {
       return querySnapshot.docs.map((doc) {

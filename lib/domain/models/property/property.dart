@@ -1,3 +1,5 @@
+import 'package:renta_control/domain/models/owner/owner_model.dart';
+
 class Property {
   final String? id;
   final String name;
@@ -10,9 +12,10 @@ class Property {
   final String state; // Estado
   final String zipCode; // Código postal
   final String notes; // Número de cuenta predial
-  final String? ownerId; // ID del propietario
+  final OwnerModel? owner;
+  //final String? ownerId; // ID del propietario
   final String? status;
-  final String? ownerName;
+  //final String? ownerName;
 
   // Nuevos campos para la propiedad detallada (Parrafo 1.b)
   final double? landArea; // Superficie del terreno en metros cuadrados
@@ -43,9 +46,10 @@ class Property {
     required this.state,
     required this.zipCode,
     required this.notes,
-    required this.ownerId, // Si es required, considera si siempre lo tendrás al crear.
+    this.owner,
+    //required this.ownerId, // Si es required, considera si siempre lo tendrás al crear.
     this.status,
-    this.ownerName,
+    //this.ownerName,
     this.landArea,
     this.constructionArea, // **CORREGIDO: 'constructionArea'**
     this.deedNumber,
@@ -75,9 +79,10 @@ class Property {
     String? state,
     String? zipCode,
     String? notes,
-    String? ownerId,
+    OwnerModel? owner,
+    //String? ownerId,
     String? status,
-    String? ownerName,
+    //String? ownerName,
     double? landArea,
     double? constructionArea, // **CORREGIDO: 'constructionArea'**
     String? deedNumber,
@@ -104,9 +109,10 @@ class Property {
       state: state ?? this.state,
       zipCode: zipCode ?? this.zipCode,
       notes: notes ?? this.notes,
-      ownerId: ownerId ?? this.ownerId,
+      owner: owner ?? this.owner,
+      //ownerId: ownerId ?? this.ownerId,
       status: status ?? this.status,
-      ownerName: ownerName ?? this.ownerName,
+      //ownerName: ownerName ?? this.ownerName,
       landArea: landArea ?? this.landArea,
       constructionArea:
           constructionArea ?? this.constructionArea, // **CORREGIDO**
@@ -138,9 +144,10 @@ class Property {
       'state': state,
       'zipCode': zipCode,
       'notes': notes,
-      'ownerId': ownerId,
+      'owner': owner!.toMap(),
+      //'ownerId': ownerId,
       'status': status,
-      'ownerName': ownerName,
+      //'ownerName': ownerName,
       'landArea': landArea,
       'constructionArea': constructionArea, // **CORREGIDO: 'constructionArea'**
       'deedNumber': deedNumber,
@@ -172,9 +179,10 @@ class Property {
       state: map['state'],
       zipCode: map['zipCode'],
       notes: map['notes'],
-      ownerId: map['ownerId'],
+      owner: OwnerModel.fromMap(map['owner'] as Map<String, dynamic>, documentId),
+      //ownerId: map['ownerId'],
       status: map['status'],
-      ownerName: map['ownerName'],
+      //ownerName: map['ownerName'],
       landArea:
           (map['landArea'] as num?)?.toDouble(), // **CORREGIDO: Casteo seguro**
       constructionArea:
