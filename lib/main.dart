@@ -1,6 +1,7 @@
 // ignore_for_file: depend_on_referenced_packages
 
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -33,6 +34,7 @@ import 'package:renta_control/presentation/pages/splash_page.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:renta_control/utils/services/notification_service.dart';
 
 //Configuración de la instancia de inyección de dependencias
 final getIt = GetIt.instance;
@@ -52,6 +54,11 @@ void setupLocator() {
   );
 }
 
+@pragma('vm:entry-point')
+Future<void> handleBackgroundMessage(RemoteMessage message) async{
+  print('Message: ${message.notification?.title}');
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -62,6 +69,11 @@ void main() async {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     setupLocator();
     await dotenv.load(fileName: ".env");
+
+    final notificationService = NotificationService();
+    await notificationService.initFCM();
+    FirebaseMessaging.onBackgroundMessage(handleBackgroundMessage);
+
     runApp(MyApp());
   });
 }

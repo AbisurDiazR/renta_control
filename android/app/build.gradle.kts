@@ -16,6 +16,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
+        isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
@@ -31,6 +32,7 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        multiDexEnabled = true
     }
 
     buildTypes {
@@ -44,4 +46,12 @@ android {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    // ... tus otras dependencias ...
+
+    // ¡¡ESTA LÍNEA ES CRUCIAL!!
+    // Añade la dependencia para el desugaring de la biblioteca central
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }
